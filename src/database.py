@@ -1,49 +1,27 @@
-import sqlite3
-import os
 import csv
-from collections import OrderedDict
+from sqlalchemy import create_engine, Column, Table, MetaData, select
+from sqlalchemy import String, Integer
 
 
 class Database:
     def __init__(self, database_name, database_path):
-        self.database_name = database_name + '.db'
         self.database_path = database_path
-        self.connection = self.connect()
-
-    def connect(self):
-        try:
-            connection = sqlite3.connect(os.path.join(self.database_path, self.database_name))
-            print('Database connection is successful.')
-            return connection
-
-        except sqlite3.Error as e:
-            print(e)
-
-    def close_connection(self):
-        self.connection.close()
-
-    def select(self, table_name):
-        select_query = f'SELECT * FROM {table_name}'
-        results = self.connection.execute(select_query)
-        for row in results:
-            print(row)
+        db_uri = f'sqlite:///{database_name}.db'
+        engine = create_engine(db_uri, echo=True)
+        self.connection = engine.connect()
+        self.meta = MetaData(engine)
 
     def create_table(self, table_name, columns):
-        # build dictionary column name and its type
-        table = OrderedDict()
-        table['id'] = 'INTEGER PRIMARY KEY'
-        for column in columns:
-            table[column] = 'TEXT'
+        # columns and table definition
+        column_definition = list()
+        column_definition.append(Column('id', Integer, primary_key=True))
+        for column_name in columns:
+            column_definition.append(Column(column_name, String))
 
-        # column names formatting
-        fieldset = []
-        for col, definition in table.items():
-            fieldset.append("{0} {1}".format(col, definition))
-        fieldset = tuple(fieldset)
+        table = Table(table_name, self.meta, *column_definition, sqlite_autoincrement=True)
+        self.meta.create_all()
 
-        # create query
-        create_query = f'CREATE TABLE IF NOT EXISTS {table_name} {fieldset}'
-        self.connection.execute(create_query)
+        return table
 
     def insert(self, table_name, csv_file):
         # read each row in csv file then insert
@@ -54,13 +32,29 @@ class Database:
             for row in csv_reader:
                 # get column names and create table
                 if line_count == 0:
-                    columns = tuple(row)
-                    self.create_table(table_name, columns)
+                    column_names = row
+                    table = self.create_table(table_name, row)
 
                 # insert data
                 else:
-                    values = tuple(row)
-                    insert_query = f'INSERT INTO {table_name} {columns} VALUES {values}'
-                    self.connection.execute(insert_query)
+                    # get data
+                    data = {}
+                    index = 0
+                    for column_name in column_names:
+                        data[column_name] = row[index]
+                        index += 1
+
+                    # insert
+                    insert = table.insert().values(data)
+                    self.connection.execute(insert)
 
                 line_count += 1
+
+        self.select(table)
+
+    def select(self, table):
+        select_query = table.select()
+        results = self.connection.execute(select_query)
+
+        for row in results:
+            print(row)
