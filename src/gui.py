@@ -1,6 +1,20 @@
 import sys
 import os
-from PyQt5.QtWidgets import QMainWindow, QAction, qApp, QApplication, QFileDialog, QMessageBox
+from PyQt5.QtWidgets import (
+    QMainWindow,
+    QAction,
+    qApp,
+    QApplication,
+    QFileDialog,
+    QMessageBox,
+    QMdiArea,
+    QMdiSubWindow,
+    QWidget,
+    QVBoxLayout,
+    QLineEdit,
+    QTableView,
+)
+from PyQt5.QtSql import QSqlDatabase, QSqlTableModel
 from database import Database
 
 
@@ -13,6 +27,8 @@ class GUI(QMainWindow):
         self.case_name = ''
         self.case_directory = ''
         self.db = None
+        self.mdi = None
+        self.model = None
 
     def init_ui(self):
         self.statusBar()
@@ -24,7 +40,7 @@ class GUI(QMainWindow):
         file_menu.addAction(self.exit_action())
 
         self.setGeometry(50, 50, 800, 600)
-        self.setWindowTitle('Garum: Forensic Timeline Analysis Tool')
+        self.setWindowTitle('DroneTimeline: Forensic Timeline Analysis for Drones')
         self.show()
 
     def newcase_action(self):
@@ -66,7 +82,7 @@ class GUI(QMainWindow):
     def open_file_dialog(self):
         if self.case_name == '':
             dlg = QMessageBox(self)
-            dlg.setWindowTitle("Garum")
+            dlg.setWindowTitle("DroneTimeline")
             dlg.setText("Please select case directory before importing a timeline.")
             dlg.setStandardButtons(QMessageBox.Ok)
             dlg.setIcon(QMessageBox.Information)
@@ -85,6 +101,49 @@ class GUI(QMainWindow):
                 table_name = os.path.basename(file_name)
                 table_name = os.path.splitext(table_name)[0]
                 self.db.insert(table_name, file_name)
+
+                self.window_trig()
+
+    def window_trig(self):
+        self.mdi = QMdiArea()
+        self.setCentralWidget(self.mdi)
+
+        # database
+        db = QSqlDatabase("QSQLITE")
+        db.setDatabaseName("src.db")
+        db.open()
+
+        sub = QMdiSubWindow()
+        sub.setWindowTitle("Sub Window")
+
+        # construct the top level widget and layout
+        widget = QWidget()
+        layout = QVBoxLayout(widget)
+
+        # define widget
+        search = QLineEdit()
+        table = QTableView()
+        self.model = QSqlTableModel(db=db)
+        table.setModel(self.model)
+        self.model.setTable("timeline-sorted")
+        self.model.select()
+        search.textChanged.connect(self.update_filter)
+
+        # add widget
+        layout.addWidget(search)
+        layout.addWidget(table)
+        widget.setLayout(layout)
+
+        # set widget
+        sub.setWidget(widget)
+
+        # add subwindow and show
+        self.mdi.addSubWindow(sub)
+        sub.show()
+
+    def update_filter(self, s):
+        filter_str = 'message LIKE "%{}%"'.format(s)
+        self.model.setFilter(filter_str)
 
 
 def main():
