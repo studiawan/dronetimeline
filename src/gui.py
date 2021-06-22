@@ -11,8 +11,12 @@ from PyQt5.QtWidgets import (
     QMdiSubWindow,
     QWidget,
     QVBoxLayout,
+    QHBoxLayout,
     QLineEdit,
     QTableView,
+    QComboBox,
+    QListWidget,
+    QPushButton
 )
 from PyQt5.QtSql import QSqlDatabase, QSqlTableModel
 from database import Database
@@ -29,6 +33,12 @@ class GUI(QMainWindow):
         self.db = None
         self.mdi = None
         self.model = None
+        self.mdi = QMdiArea()
+        self.setCentralWidget(self.mdi)
+        self.timeline_list = None
+        self.timeline_combo = None
+        self.column_list = None
+        self.final_column = None
 
     def init_ui(self):
         self.statusBar()
@@ -38,6 +48,9 @@ class GUI(QMainWindow):
         file_menu.addAction(self.newcase_action())
         file_menu.addAction(self.import_action())
         file_menu.addAction(self.exit_action())
+
+        timeline_menu = menubar.addMenu('&Timeline')
+        timeline_menu.addAction(self.merge_action())
 
         self.setGeometry(50, 50, 800, 600)
         self.setWindowTitle('DroneTimeline: Forensic Timeline Analysis for Drones')
@@ -105,9 +118,6 @@ class GUI(QMainWindow):
                 self.window_trig()
 
     def window_trig(self):
-        self.mdi = QMdiArea()
-        self.setCentralWidget(self.mdi)
-
         # database
         db = QSqlDatabase("QSQLITE")
         db.setDatabaseName("src.db")
@@ -144,6 +154,77 @@ class GUI(QMainWindow):
     def update_filter(self, s):
         filter_str = 'message LIKE "%{}%"'.format(s)
         self.model.setFilter(filter_str)
+
+    def merge_action(self):
+        newcase_act = QAction('&Merge Timelines', self)
+        newcase_act.setShortcut('Ctrl+M')
+        newcase_act.setStatusTip('Merge timelines')
+        newcase_act.triggered.connect(self.merge_window_trig)
+
+        return newcase_act
+
+    def merge_window_trig(self):
+        sub = QMdiSubWindow()
+        sub.setWindowTitle("Merge Timeline")
+
+        # construct the top level widget and layout
+        main_layout = QHBoxLayout()
+        main_widget = QWidget()
+        layout1 = QVBoxLayout()
+        layout2 = QVBoxLayout()
+        layout3 = QVBoxLayout()
+
+        # define widget for layout1
+        self.timeline_combo = QComboBox()
+        self.timeline_combo.addItem('Timeline 1')
+        self.timeline_combo.addItem('Timeline 2')
+        self.timeline_combo.addItem('Timeline 3')
+
+        self.timeline_list = QListWidget()
+        self.timeline_list.addItem('Item 1')
+
+        add_timeline_button = QPushButton(self)
+        add_timeline_button.setText('Add timeline')
+        add_timeline_button.clicked.connect(self.add_timeline_button_clicked)
+
+        # add widget to layout 1
+        layout1.addWidget(self.timeline_combo)
+        layout1.addWidget(add_timeline_button)
+        layout1.addWidget(self.timeline_list)
+
+        # add widget to layout 2
+        self.column_list = QListWidget()
+        self.column_list.addItem('column 1')
+        self.column_list.addItem('column 2')
+
+        add_column_button = QPushButton(self)
+        add_column_button.setText('Add column')
+        add_column_button.clicked.connect(self.add_column_button_clicked)
+        layout2.addWidget(self.column_list)
+        layout2.addWidget(add_column_button)
+
+        # add widget to layout 3
+        self.final_column = QListWidget()
+        self.final_column.addItem('timestamp')
+        self.final_column.addItem('event')
+        layout3.addWidget(self.final_column)
+
+        # main layout and main widget
+        main_layout.addLayout(layout1)
+        main_layout.addLayout(layout2)
+        main_layout.addLayout(layout3)
+        main_widget.setLayout(main_layout)
+
+        # add subwindow and show
+        sub.setWidget(main_widget)
+        self.mdi.addSubWindow(sub)
+        sub.show()
+
+    def add_timeline_button_clicked(self):
+        self.timeline_list.addItem(self.timeline_combo.currentText())
+
+    def add_column_button_clicked(self):
+        self.final_column.addItem(self.column_list.currentItem().text())
 
 
 def main():
