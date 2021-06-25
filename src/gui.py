@@ -16,7 +16,8 @@ from PyQt5.QtWidgets import (
     QTableView,
     QComboBox,
     QListWidget,
-    QPushButton
+    QPushButton,
+    QLabel
 )
 from PyQt5.QtSql import QSqlDatabase, QSqlTableModel
 from database import Database
@@ -27,7 +28,7 @@ class GUI(QMainWindow):
     def __init__(self):
         super().__init__()
         self.init_ui()
-        self.timeline_paths = []
+        self.timeline_names = []
         self.case_name = ''
         self.case_directory = ''
         self.db = None
@@ -39,6 +40,7 @@ class GUI(QMainWindow):
         self.timeline_combo = None
         self.column_list = None
         self.final_column = None
+        self.timeline_columns = {}
 
     def init_ui(self):
         self.statusBar()
@@ -108,13 +110,17 @@ class GUI(QMainWindow):
                                                        options=options)
             if file_name:
                 print(file_name)
-                self.timeline_paths.append(file_name)
 
                 # insert timeline to database
                 table_name = os.path.basename(file_name)
                 table_name = os.path.splitext(table_name)[0]
-                self.db.insert(table_name, file_name)
+                column_names = self.db.insert(table_name, file_name)
+                self.timeline_names.append(table_name)
 
+                # save timeline and its column names
+                self.timeline_columns[table_name] = column_names
+
+                # show timeline in an MDI window
                 self.window_trig()
 
     def window_trig(self):
@@ -175,39 +181,68 @@ class GUI(QMainWindow):
         layout3 = QVBoxLayout()
 
         # define widget for layout1
+        # label
+        timeline_label = QLabel()
+        timeline_label.setText('Timeline:')
+
+        # timeline combo box
         self.timeline_combo = QComboBox()
-        self.timeline_combo.addItem('Timeline 1')
-        self.timeline_combo.addItem('Timeline 2')
-        self.timeline_combo.addItem('Timeline 3')
+        for timeline_name in self.timeline_names:
+            self.timeline_combo.addItem(timeline_name)
 
-        self.timeline_list = QListWidget()
-        self.timeline_list.addItem('Item 1')
-
+        # add timeline button
         add_timeline_button = QPushButton(self)
         add_timeline_button.setText('Add timeline')
         add_timeline_button.clicked.connect(self.add_timeline_button_clicked)
 
+        # label
+        added_timeline_label = QLabel()
+        added_timeline_label.setText('Added timeline:')
+
+        # timeline list
+        self.timeline_list = QListWidget()
+        self.timeline_list.itemClicked.connect(self.timeline_list_clicked)
+
         # add widget to layout 1
+        layout1.addWidget(timeline_label)
         layout1.addWidget(self.timeline_combo)
         layout1.addWidget(add_timeline_button)
+        layout1.addWidget(added_timeline_label)
         layout1.addWidget(self.timeline_list)
 
         # add widget to layout 2
+        column_label = QLabel()
+        column_label.setText('Columns in selected timeline:')
         self.column_list = QListWidget()
-        self.column_list.addItem('column 1')
-        self.column_list.addItem('column 2')
 
-        add_column_button = QPushButton(self)
+        add_column_button = QPushButton()
         add_column_button.setText('Add column')
         add_column_button.clicked.connect(self.add_column_button_clicked)
+
+        layout2.addWidget(column_label)
         layout2.addWidget(self.column_list)
         layout2.addWidget(add_column_button)
 
         # add widget to layout 3
+        final_column_label = QLabel()
+        final_column_label.setText('Added columns for timeline merging:')
+
         self.final_column = QListWidget()
-        self.final_column.addItem('timestamp')
-        self.final_column.addItem('event')
+        self.final_column.addItem('Timeline 1: timestamp')
+        self.final_column.addItem('Timeline 2: event')
+
+        remove_column_button = QPushButton()
+        remove_column_button.setText('Remove column')
+        remove_column_button.clicked.connect(self.remove_column_button_clicked)
+
+        merge_button = QPushButton()
+        merge_button.setText('Merge timeline')
+        merge_button.clicked.connect(self.merge_button_clicked)
+
+        layout3.addWidget(final_column_label)
         layout3.addWidget(self.final_column)
+        layout3.addWidget(remove_column_button)
+        layout3.addWidget(merge_button)
 
         # main layout and main widget
         main_layout.addLayout(layout1)
@@ -221,10 +256,34 @@ class GUI(QMainWindow):
         sub.show()
 
     def add_timeline_button_clicked(self):
-        self.timeline_list.addItem(self.timeline_combo.currentText())
+        # check a timeline name is exist in the list or not
+        is_exist = False
+        for index in range(self.timeline_list.count()):
+            if self.timeline_combo.currentText() == self.timeline_list.item(index):     # .text()
+                is_exist = True
+                break
+
+        # add timeline to list if not exist
+        if is_exist is False:
+            self.timeline_list.addItem(self.timeline_combo.currentText())
 
     def add_column_button_clicked(self):
         self.final_column.addItem(self.column_list.currentItem().text())
+
+    def timeline_list_clicked(self):
+        # empty the column list
+        self.column_list.clear()
+
+        # add column names to column list
+        for columns in self.timeline_columns[self.timeline_list.currentItem().text()]:
+            for column in columns:
+                self.column_list.addItem(column)
+
+    def merge_button_clicked(self):
+        pass
+
+    def remove_column_button_clicked(self):
+        pass
 
 
 def main():
