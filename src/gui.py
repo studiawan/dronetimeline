@@ -19,6 +19,7 @@ from PyQt5.QtWidgets import (
     QPushButton,
     QLabel
 )
+from collections import defaultdict
 from PyQt5.QtSql import QSqlDatabase, QSqlTableModel
 from database import Database
 
@@ -41,6 +42,7 @@ class GUI(QMainWindow):
         self.column_list = None
         self.final_column = None
         self.timeline_columns = {}
+        self.timeline_data = {}
 
     def init_ui(self):
         self.statusBar()
@@ -53,6 +55,7 @@ class GUI(QMainWindow):
 
         timeline_menu = menubar.addMenu('&Timeline')
         timeline_menu.addAction(self.merge_action())
+        # timeline_menu.addAction(self.show_merged_timeline_action())
 
         self.setGeometry(50, 50, 800, 600)
         self.setWindowTitle('DroneTimeline: Forensic Timeline Analysis for Drones')
@@ -94,14 +97,12 @@ class GUI(QMainWindow):
             self.case_name = database_name
             self.case_directory = directory
 
+            message = f'{"Case directory is selected: "}{directory}'
+            self.show_info_messagebox(message)
+
     def open_file_dialog(self):
         if self.case_name == '':
-            dlg = QMessageBox(self)
-            dlg.setWindowTitle("DroneTimeline")
-            dlg.setText("Please select case directory before importing a timeline.")
-            dlg.setStandardButtons(QMessageBox.Ok)
-            dlg.setIcon(QMessageBox.Information)
-            dlg.exec_()
+            self.show_info_messagebox("Please select case directory before importing a timeline.")
 
         else:
             options = QFileDialog.Options()
@@ -114,23 +115,28 @@ class GUI(QMainWindow):
                 # insert timeline to database
                 table_name = os.path.basename(file_name)
                 table_name = os.path.splitext(table_name)[0]
-                column_names = self.db.insert(table_name, file_name)
+                column_names, table = self.db.insert_csv(table_name, file_name)
                 self.timeline_names.append(table_name)
 
                 # save timeline and its column names
                 self.timeline_columns[table_name] = column_names
+                self.timeline_data[table_name] = table
 
                 # show timeline in an MDI window
-                self.window_trig()
+                self.timeline_window_trigger()
+                message = f'{"Timeline is imported successfully: "}{table_name}{"."}'
+                self.show_info_messagebox(message)
 
-    def window_trig(self):
+    def timeline_window_trigger(self):
         # database
         db = QSqlDatabase("QSQLITE")
         db.setDatabaseName("src.db")
         db.open()
 
+        # define sub window
         sub = QMdiSubWindow()
-        sub.setWindowTitle("Sub Window")
+        sub.setWindowTitle("Drone Timeline")
+        sub.setGeometry(60, 60, 600, 400)
 
         # construct the top level widget and layout
         widget = QWidget()
@@ -156,6 +162,7 @@ class GUI(QMainWindow):
         # add subwindow and show
         self.mdi.addSubWindow(sub)
         sub.show()
+        db.close()
 
     def update_filter(self, s):
         filter_str = 'message LIKE "%{}%"'.format(s)
@@ -165,13 +172,17 @@ class GUI(QMainWindow):
         newcase_act = QAction('&Merge Timelines', self)
         newcase_act.setShortcut('Ctrl+M')
         newcase_act.setStatusTip('Merge timelines')
-        newcase_act.triggered.connect(self.merge_window_trig)
+        newcase_act.triggered.connect(self.merge_window_trigger)
 
         return newcase_act
 
-    def merge_window_trig(self):
+    def show_merged_timeline_action(self):
+        pass
+
+    def merge_window_trigger(self):
+        # create sub window
         sub = QMdiSubWindow()
-        sub.setWindowTitle("Merge Timeline")
+        sub.setWindowTitle("Merge Timelines")
 
         # construct the top level widget and layout
         main_layout = QHBoxLayout()
@@ -211,34 +222,48 @@ class GUI(QMainWindow):
         layout1.addWidget(self.timeline_list)
 
         # add widget to layout 2
+        # label
         column_label = QLabel()
         column_label.setText('Columns in selected timeline:')
+
+        # column list
         self.column_list = QListWidget()
 
-        add_column_button = QPushButton()
-        add_column_button.setText('Add column')
-        add_column_button.clicked.connect(self.add_column_button_clicked)
+        # add column as timestamp
+        add_column_as_timestamp_button = QPushButton()
+        add_column_as_timestamp_button.setText('Add column as timestamp')
+        add_column_as_timestamp_button.clicked.connect(self.add_column_as_timestamp_button_clicked)
 
+        # add column as event button
+        add_column_as_event_button = QPushButton()
+        add_column_as_event_button.setText('Add column as event')
+        add_column_as_event_button.clicked.connect(self.add_column_as_event_button_clicked)
+
+        # add widgets to layout 2
         layout2.addWidget(column_label)
         layout2.addWidget(self.column_list)
-        layout2.addWidget(add_column_button)
+        layout2.addWidget(add_column_as_timestamp_button)
+        layout2.addWidget(add_column_as_event_button)
 
         # add widget to layout 3
+        # label
         final_column_label = QLabel()
         final_column_label.setText('Added columns for timeline merging:')
 
+        # added column list
         self.final_column = QListWidget()
-        self.final_column.addItem('Timeline 1: timestamp')
-        self.final_column.addItem('Timeline 2: event')
 
+        # remove column button
         remove_column_button = QPushButton()
         remove_column_button.setText('Remove column')
         remove_column_button.clicked.connect(self.remove_column_button_clicked)
 
+        # merge timeline button
         merge_button = QPushButton()
         merge_button.setText('Merge timeline')
         merge_button.clicked.connect(self.merge_button_clicked)
 
+        # add widgets to layout 3
         layout3.addWidget(final_column_label)
         layout3.addWidget(self.final_column)
         layout3.addWidget(remove_column_button)
@@ -256,34 +281,102 @@ class GUI(QMainWindow):
         sub.show()
 
     def add_timeline_button_clicked(self):
-        # check a timeline name is exist in the list or not
-        is_exist = False
-        for index in range(self.timeline_list.count()):
-            if self.timeline_combo.currentText() == self.timeline_list.item(index):     # .text()
-                is_exist = True
-                break
+        timeline_combo_count = self.timeline_combo.count()
 
-        # add timeline to list if not exist
-        if is_exist is False:
-            self.timeline_list.addItem(self.timeline_combo.currentText())
+        # check whether combo is not empty
+        if timeline_combo_count > 0:
+            timeline_list_count = self.timeline_list.count()
 
-    def add_column_button_clicked(self):
-        self.final_column.addItem(self.column_list.currentItem().text())
+            # check whether list is not empty
+            if timeline_list_count > 0:
+                is_exist = False
+
+                # check a timeline name is exist in the list or not
+                for index in range(timeline_list_count):
+                    if self.timeline_combo.currentText() == self.timeline_list.item(index).text():
+                        is_exist = True
+                        break
+
+                # add timeline to list if not exist
+                if is_exist is False:
+                    self.timeline_list.addItem(self.timeline_combo.currentText())
+
+            # if list is empty, add item
+            else:
+                self.timeline_list.addItem(self.timeline_combo.currentText())
+
+    def add_column_as_timestamp_button_clicked(self):
+        self.add_column_clicked('timestamp')
+
+    def add_column_as_event_button_clicked(self):
+        self.add_column_clicked('event')
+
+    def add_column_clicked(self, column_type):
+        column_count = self.column_list.count()
+
+        # check whether column list is not empty
+        if column_count > 0 and len(self.column_list.selectedItems()) > 0:
+            final_column_count = self.final_column.count()
+            column_current_item = f'{self.timeline_list.currentItem().text()}{"["}{column_type}{"]: "}' \
+                                  f'{self.column_list.currentItem().text()}'
+
+            # check whether final column list is not empty
+            if final_column_count > 0:
+                is_exist = False
+
+                # check a column name is exist in final column list
+                for index in range(final_column_count):
+                    if column_current_item == self.final_column.item(index).text():
+                        is_exist = True
+                        break
+
+                if is_exist is False:
+                    self.final_column.addItem(column_current_item)
+
+            # if list is empty, add item
+            else:
+                self.final_column.addItem(column_current_item)
 
     def timeline_list_clicked(self):
         # empty the column list
         self.column_list.clear()
 
         # add column names to column list
-        for columns in self.timeline_columns[self.timeline_list.currentItem().text()]:
-            for column in columns:
-                self.column_list.addItem(column)
-
-    def merge_button_clicked(self):
-        pass
+        for column in self.timeline_columns[self.timeline_list.currentItem().text()]:
+            self.column_list.addItem(column)
 
     def remove_column_button_clicked(self):
-        pass
+        column_count = self.final_column.count()
+        if column_count > 0:
+            self.final_column.takeItem(self.final_column.currentRow())
+
+    def merge_button_clicked(self):
+        # select column from each selected timeline
+        selected_columns = defaultdict(dict)
+
+        # get timeline name, column type (timestamp or event), and column name
+        for index in range(self.final_column.count()):
+            text = self.final_column.item(index).text()
+            text_split = text.split(': ')
+            timeline_name = text_split[0].split('[')[0]
+            column_type = text_split[0].split('[')[1].split(']')[0]
+            column_name = text_split[1]
+            selected_columns[timeline_name] = {column_type: column_name}
+
+        # insert into (new) table merged timeline
+        self.db.insert_data_to_merged_timeline(selected_columns, self.timeline_data)
+
+        # show info dialog: Merge timelines is successful. You can access the file: case_name_merged_timelines.csv
+        self.show_info_messagebox("Merge timelines is successful.")
+
+    @staticmethod
+    def show_info_messagebox(text):
+        dlg = QMessageBox()
+        dlg.setWindowTitle("DroneTimeline")
+        dlg.setText(text)
+        dlg.setStandardButtons(QMessageBox.Ok)
+        dlg.setIcon(QMessageBox.Information)
+        dlg.exec_()
 
 
 def main():
