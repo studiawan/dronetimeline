@@ -87,9 +87,8 @@ class QtDatabase(object):
 
         return column_names
 
-    def insert_into_merged_timeline(self, selected_columns):
+    def insert_into_merged_timeline(self, selected_columns, merged_timeline_table):
         # create table merged-timeline
-        merged_timeline_table = 'mergedtimeline'
         column_name_merged_timeline = ['timestamp', 'event', 'source']
         self.create_table(merged_timeline_table, column_name_merged_timeline)
 
