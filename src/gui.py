@@ -1,5 +1,6 @@
 import sys
 import os
+import re
 from PyQt5.QtWidgets import (
     QMainWindow,
     QAction,
@@ -19,22 +20,22 @@ from PyQt5.QtWidgets import (
     QPushButton,
     QLabel
 )
+from PyQt5.QtGui import QMouseEvent
 from collections import defaultdict
-from PyQt5.QtSql import QSqlDatabase, QSqlTableModel
-from database import Database
+from PyQt5.QtSql import QSqlTableModel
+from qtdatabase import QtDatabase
 
 
 class GUI(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.init_ui()
         self.timeline_names = []
         self.case_name = ''
         self.case_directory = ''
-        self.db = None
-        self.mdi = None
+        self.database = None
         self.model = None
+        self.merged_timeline_model = None
         self.mdi = QMdiArea()
         self.setCentralWidget(self.mdi)
         self.timeline_list = None
@@ -43,6 +44,9 @@ class GUI(QMainWindow):
         self.final_column = None
         self.timeline_columns = {}
         self.timeline_data = {}
+        self.current_table_name = ''
+        self.merged_timeline_table_name = 'mergedtimeline'
+        self.init_ui()
 
     def init_ui(self):
         self.statusBar()
@@ -55,11 +59,14 @@ class GUI(QMainWindow):
 
         timeline_menu = menubar.addMenu('&Timeline')
         timeline_menu.addAction(self.merge_action())
-        # timeline_menu.addAction(self.show_merged_timeline_action())
+        timeline_menu.addAction(self.show_merged_timeline_action())
 
         self.setGeometry(50, 50, 800, 600)
         self.setWindowTitle('DroneTimeline: Forensic Timeline Analysis for Drones')
         self.show()
+
+    def mousePressEvent(self, a0: QMouseEvent) -> None:
+        print('window is pressed.', self.windowTitle())
 
     def newcase_action(self):
         newcase_act = QAction('&Select Case Directory', self)
@@ -83,6 +90,9 @@ class GUI(QMainWindow):
         exit_act.setStatusTip('Exit application')
         exit_act.triggered.connect(qApp.quit)
 
+        if self.database is not None:
+            self.database.connection.close()
+
         return exit_act
 
     def open_directory_dialog(self):
@@ -91,7 +101,7 @@ class GUI(QMainWindow):
         # get database name and database directory
         database_name = os.path.basename(directory)
         if database_name != '' and directory != '':
-            self.db = Database(database_name, directory)
+            self.database = QtDatabase(directory)
 
             # at the moment, case name == database name
             self.case_name = database_name
@@ -115,28 +125,29 @@ class GUI(QMainWindow):
                 # insert timeline to database
                 table_name = os.path.basename(file_name)
                 table_name = os.path.splitext(table_name)[0]
-                column_names, table = self.db.insert_csv(table_name, file_name)
+
+                # make sure table name is alphanumeric
+                table_name = re.sub('[\W_]+', '', table_name)
+
+                # insert csv file to database
+                column_names = self.database.insert_csv(table_name, file_name)
                 self.timeline_names.append(table_name)
+                self.current_table_name = table_name
 
                 # save timeline and its column names
                 self.timeline_columns[table_name] = column_names
-                self.timeline_data[table_name] = table
 
                 # show timeline in an MDI window
-                self.timeline_window_trigger()
+                self.timeline_window_trigger(table_name)
                 message = f'{"Timeline is imported successfully: "}{table_name}{"."}'
                 self.show_info_messagebox(message)
 
-    def timeline_window_trigger(self):
-        # database
-        db = QSqlDatabase("QSQLITE")
-        db.setDatabaseName("src.db")
-        db.open()
-
+    def timeline_window_trigger(self, table_name):
         # define sub window
-        sub = QMdiSubWindow()
-        sub.setWindowTitle("Drone Timeline")
-        sub.setGeometry(60, 60, 600, 400)
+        subwindow = QMdiSubWindow()
+        subwindow_title = f"{'Drone Timeline: '}{table_name}"
+        subwindow.setWindowTitle(subwindow_title)
+        subwindow.setGeometry(60, 60, 600, 400)
 
         # construct the top level widget and layout
         widget = QWidget()
@@ -145,11 +156,11 @@ class GUI(QMainWindow):
         # define widget
         search = QLineEdit()
         table = QTableView()
-        self.model = QSqlTableModel(db=db)
-        table.setModel(self.model)
-        self.model.setTable("timeline-sorted")
-        self.model.select()
-        search.textChanged.connect(self.update_filter)
+        self.merged_timeline_model = QSqlTableModel(db=self.database.connection)
+        table.setModel(self.merged_timeline_model)
+        self.merged_timeline_model.setTable(self.merged_timeline_table_name)
+        self.merged_timeline_model.select()
+        search.textChanged.connect(self.update_filter_merged_timeline)
 
         # add widget
         layout.addWidget(search)
@@ -157,16 +168,19 @@ class GUI(QMainWindow):
         widget.setLayout(layout)
 
         # set widget
-        sub.setWidget(widget)
+        subwindow.setWidget(widget)
 
         # add subwindow and show
-        self.mdi.addSubWindow(sub)
-        sub.show()
-        db.close()
+        self.mdi.addSubWindow(subwindow)
+        subwindow.show()
 
     def update_filter(self, s):
         filter_str = 'message LIKE "%{}%"'.format(s)
         self.model.setFilter(filter_str)
+
+    def update_filter_merged_timeline(self, s):
+        filter_str = 'message LIKE "%{}%"'.format(s)
+        self.merged_timeline_model.setFilter(filter_str)
 
     def merge_action(self):
         newcase_act = QAction('&Merge Timelines', self)
@@ -177,7 +191,12 @@ class GUI(QMainWindow):
         return newcase_act
 
     def show_merged_timeline_action(self):
-        pass
+        show_merged_timeline_act = QAction('S&how Merged Timeline', self)
+        show_merged_timeline_act.setShortcut('Ctrl+H')
+        show_merged_timeline_act.setStatusTip('Show merged timeline')
+        show_merged_timeline_act.triggered.connect(self.merged_timeline_window_trigger)
+
+        return show_merged_timeline_act
 
     def merge_window_trigger(self):
         # create sub window
@@ -280,6 +299,39 @@ class GUI(QMainWindow):
         self.mdi.addSubWindow(sub)
         sub.show()
 
+    def merged_timeline_window_trigger(self):
+        # define sub window
+        subwindow = QMdiSubWindow()
+        subwindow.setWindowTitle("Drone Timeline")
+        subwindow.setGeometry(60, 60, 600, 400)
+
+        # construct the top level widget and layout
+        widget = QWidget()
+        layout = QVBoxLayout(widget)
+
+        # define widget
+        search = QLineEdit()
+        table = QTableView()
+
+        # access the table in database
+        self.model = QSqlTableModel(db=self.database.connection)
+        table.setModel(self.model)
+        self.model.setTable(self.merged_timeline_table_name)
+        self.model.select()
+        search.textChanged.connect(self.update_filter)
+
+        # add widget
+        layout.addWidget(search)
+        layout.addWidget(table)
+        widget.setLayout(layout)
+
+        # set widget
+        subwindow.setWidget(widget)
+
+        # add subwindow and show
+        self.mdi.addSubWindow(subwindow)
+        subwindow.show()
+
     def add_timeline_button_clicked(self):
         timeline_combo_count = self.timeline_combo.count()
 
@@ -361,10 +413,10 @@ class GUI(QMainWindow):
             timeline_name = text_split[0].split('[')[0]
             column_type = text_split[0].split('[')[1].split(']')[0]
             column_name = text_split[1]
-            selected_columns[timeline_name] = {column_type: column_name}
+            selected_columns[timeline_name][column_type] = column_name
 
         # insert into (new) table merged timeline
-        self.db.insert_data_to_merged_timeline(selected_columns, self.timeline_data)
+        self.database.insert_into_merged_timeline(selected_columns, self.merged_timeline_table_name)
 
         # show info dialog: Merge timelines is successful. You can access the file: case_name_merged_timelines.csv
         self.show_info_messagebox("Merge timelines is successful.")
