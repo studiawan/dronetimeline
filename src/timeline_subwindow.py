@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import (
     QLabel
 )
 from PyQt5.QtSql import QSqlTableModel
+from PyQt5 import QtGui
 
 
 class TimelineSubWindow(QMdiSubWindow):
@@ -22,6 +23,7 @@ class TimelineSubWindow(QMdiSubWindow):
     def show_ui(self):
         # set title and geometry
         subwindow_title = f"{'Drone Timeline: '}{self.table_name}"
+        self.setWindowIcon(QtGui.QIcon('../assets/drone.png'))
         self.setWindowTitle(subwindow_title)
         self.setGeometry(60, 60, 600, 400)
 
