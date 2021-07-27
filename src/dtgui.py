@@ -10,6 +10,7 @@ from PyQt5.QtWidgets import (
     QMessageBox,
     QMdiArea
 )
+from PyQt5 import QtGui
 from qtdatabase import QtDatabase
 from timeline_subwindow import TimelineSubWindow
 from merge_timeline_subwindow import MergeTimelineSubWindow
@@ -46,6 +47,7 @@ class DtGui(QMainWindow):
         timeline_menu.addAction(self.show_merged_timeline_action())
 
         # show main window
+        self.setWindowIcon(QtGui.QIcon('../assets/drone.png'))
         self.setGeometry(50, 50, 800, 600)
         self.setWindowTitle(self.main_window_title)
         self.show()
@@ -151,10 +153,15 @@ class DtGui(QMainWindow):
         subwindow.show_ui()
 
     def merged_timeline_window_trigger(self):
-        # define and show merged timeline sub window
-        subwindow = TimelineSubWindow(self.merged_timeline_table_name, ['timestamp', 'event'], self.database.connection)
-        self.mdi.addSubWindow(subwindow)
-        subwindow.show_ui()
+        if self.database is None:
+            self.show_info_messagebox('Please select case directory, import timeline, and then merge timeline.')
+
+        else:
+            # define and show merged timeline sub window
+            subwindow = TimelineSubWindow(self.merged_timeline_table_name,
+                                          ['timestamp', 'event'], self.database.connection)
+            self.mdi.addSubWindow(subwindow)
+            subwindow.show_ui()
 
     @staticmethod
     def show_info_messagebox(text):
