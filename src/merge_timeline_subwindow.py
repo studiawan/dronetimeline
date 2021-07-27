@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import (
     QListWidget,
     QMessageBox
 )
+from PyQt5 import QtGui
 from collections import defaultdict
 
 
@@ -26,6 +27,7 @@ class MergeTimelineSubWindow(QMdiSubWindow):
     def show_ui(self):
         # set title and geometry
         subwindow_title = 'Merge Timelines'
+        self.setWindowIcon(QtGui.QIcon('../assets/drone.png'))
         self.setWindowTitle(subwindow_title)
         self.setGeometry(60, 60, 600, 400)
 
@@ -195,23 +197,25 @@ class MergeTimelineSubWindow(QMdiSubWindow):
             self.final_column.takeItem(self.final_column.currentRow())
 
     def merge_button_clicked(self):
-        # select column from each selected timeline
-        selected_columns = defaultdict(dict)
+        column_count = self.final_column.count()
+        if column_count > 0:
+            # select column from each selected timeline
+            selected_columns = defaultdict(dict)
 
-        # get timeline name, column type (timestamp or event), and column name
-        for index in range(self.final_column.count()):
-            text = self.final_column.item(index).text()
-            text_split = text.split(': ')
-            timeline_name = text_split[0].split('[')[0]
-            column_type = text_split[0].split('[')[1].split(']')[0]
-            column_name = text_split[1]
-            selected_columns[timeline_name][column_type] = column_name
+            # get timeline name, column type (timestamp or event), and column name
+            for index in range(self.final_column.count()):
+                text = self.final_column.item(index).text()
+                text_split = text.split(': ')
+                timeline_name = text_split[0].split('[')[0]
+                column_type = text_split[0].split('[')[1].split(']')[0]
+                column_name = text_split[1]
+                selected_columns[timeline_name][column_type] = column_name
 
-        # insert into (new) table merged timeline
-        self.database.insert_into_merged_timeline(selected_columns, self.merged_timeline_table_name)
+            # insert into (new) table merged timeline
+            self.database.insert_into_merged_timeline(selected_columns, self.merged_timeline_table_name)
 
-        # show info dialog: Merge timelines is successful. You can access the file: case_name_merged_timelines.csv
-        self.show_info_messagebox("Merge timelines is successful.")
+            # show info dialog: Merge timelines is successful. You can access the file: case_name_merged_timelines.csv
+            self.show_info_messagebox("Merge timelines is successful.")
 
     @staticmethod
     def show_info_messagebox(text):
