@@ -1,14 +1,14 @@
 import os
 import csv
 from PyQt5.QtSql import QSqlDatabase, QSqlQuery
-
-
+import time
 class QtDatabase(object):
+
     def __init__(self, database_path):
+        self.database_path = database_path
         self.database_name = f"{os.path.basename(database_path)}{'.db'}"
         self.connection = QSqlDatabase.addDatabase('QSQLITE')
         self.connection.setDatabaseName(self.database_name)
-
     # @staticmethod
     def create_table(self, table_name, column_names):
         if not self.connection.open():
@@ -68,24 +68,19 @@ class QtDatabase(object):
 
         # insert data
         insert_query.exec()
-
+    
     def insert_csv(self, table_name, csv_file):
         with open(csv_file) as f:
             csv_reader = csv.reader(f, delimiter=',')
+            # getting column names
+            column_names = next(csv_reader)
+            self.create_table(table_name, column_names)
 
-            line_count = 0
-            for row in csv_reader:
-                # get column names and create table
-                if line_count == 0:
-                    column_names = row
-                    self.create_table(table_name, column_names)
-                    line_count += 1
-
-                # insert data
-                else:
-                    self.insert_data(table_name, column_names, row)
-
-        return column_names
+            # using csv_read_window for inserting to csv
+            from csv_read_subwindow import CSVReadSubWindow
+            subwindow = CSVReadSubWindow(csv_file, table_name, column_names, self.database_path)
+            subwindow.show_ui()
+            return column_names
 
     def insert_into_merged_timeline(self, selected_columns, merged_timeline_table):
         # create table merged-timeline
@@ -102,10 +97,8 @@ class QtDatabase(object):
                         column_sorted.insert(0, column_name)
                     else:
                         column_sorted.append(column_name)
-
                 elif column_type == 'event':
                     column_sorted.append(column_name)
-
             # build query string
             column_string = ''
             comma = ', '
