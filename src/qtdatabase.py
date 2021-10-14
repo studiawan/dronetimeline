@@ -1,7 +1,67 @@
 import os
 import csv
 from PyQt5.QtSql import QSqlDatabase, QSqlQuery
-import time
+
+import sqlite3, time, os, csv
+
+def thread_insert_to_db_function(csv_file, table_name, column_names, database_path):
+    time_start = time.time()
+    con = sqlite3.connect(f"{os.path.basename(database_path)}{'.db'}")
+    cur = con.cursor()
+    cur.execute(f"SELECT MAX(id) FROM {table_name}")
+
+    # Check last entry of the database
+    row = cur.fetchone()[0]
+    last_inserted_id = int(row) if bool(row) else 0
+    
+    
+    n = 1 # number of lines in csv
+    datas = []
+
+
+    with open(csv_file) as f:
+        n += sum(1 for line in f)
+    with open(csv_file) as f:
+        csv_reader = csv.reader(f, delimiter=',')
+        # skipping1 header
+        next(csv_reader)
+
+        # skipping last_inserted_id number of records
+        for i in range(0, last_inserted_id): 
+            next(csv_reader)
+            
+        for row in csv_reader:
+            datas.append((row))
+            
+    column_string = ''
+    comma = ', '
+    column_names_len = len(column_names)
+
+    # column names
+    for index, column_name in enumerate(column_names):
+        if index == column_names_len - 1:
+            comma = ''
+        column_string += f"{column_name}{comma}"
+    column_string = f"{'('}{column_string}{')'}{' VALUES '}"
+
+    # values
+    comma = ', '
+    values_string = ''
+    for index in range(column_names_len):
+        if index == column_names_len - 1:
+            comma = ''
+        values_string += f"{'?'}{comma}"
+    values_string = f"{'('}{values_string}{')'}"
+    column_string += f"{values_string}"
+    query_string = f"{'INSERT INTO '}{table_name}{column_string}"
+    
+    cur.executemany(query_string, datas)
+    con.commit()
+    cur.close()
+    print("finished inserting from csv")
+
+
+
 class QtDatabase(object):
 
     def __init__(self, database_path):
@@ -75,11 +135,8 @@ class QtDatabase(object):
             # getting column names
             column_names = next(csv_reader)
             self.create_table(table_name, column_names)
-
-            # using csv_read_window for inserting to csv
-            from csv_read_subwindow import CSVReadSubWindow
-            subwindow = CSVReadSubWindow(csv_file, table_name, column_names, self.database_path)
-            subwindow.show_ui()
+            thread_insert_to_db_function(csv_file, table_name, column_names, self.database_path)
+            
             return column_names
 
     def insert_into_merged_timeline(self, selected_columns, merged_timeline_table):
