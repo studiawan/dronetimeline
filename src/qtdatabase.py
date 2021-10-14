@@ -2,13 +2,73 @@ import os
 import csv
 from PyQt5.QtSql import QSqlDatabase, QSqlQuery
 
+import sqlite3, time, os, csv
+
+def thread_insert_to_db_function(csv_file, table_name, column_names, database_path):
+    time_start = time.time()
+    con = sqlite3.connect(f"{os.path.basename(database_path)}{'.db'}")
+    cur = con.cursor()
+    cur.execute(f"SELECT MAX(id) FROM {table_name}")
+
+    # Check last entry of the database
+    row = cur.fetchone()[0]
+    last_inserted_id = int(row) if bool(row) else 0
+    
+    
+    n = 1 # number of lines in csv
+    datas = []
+
+
+    with open(csv_file) as f:
+        n += sum(1 for line in f)
+    with open(csv_file) as f:
+        csv_reader = csv.reader(f, delimiter=',')
+        # skipping1 header
+        next(csv_reader)
+
+        # skipping last_inserted_id number of records
+        for i in range(0, last_inserted_id): 
+            next(csv_reader)
+            
+        for row in csv_reader:
+            datas.append((row))
+            
+    column_string = ''
+    comma = ', '
+    column_names_len = len(column_names)
+
+    # column names
+    for index, column_name in enumerate(column_names):
+        if index == column_names_len - 1:
+            comma = ''
+        column_string += f"{column_name}{comma}"
+    column_string = f"{'('}{column_string}{')'}{' VALUES '}"
+
+    # values
+    comma = ', '
+    values_string = ''
+    for index in range(column_names_len):
+        if index == column_names_len - 1:
+            comma = ''
+        values_string += f"{'?'}{comma}"
+    values_string = f"{'('}{values_string}{')'}"
+    column_string += f"{values_string}"
+    query_string = f"{'INSERT INTO '}{table_name}{column_string}"
+    
+    cur.executemany(query_string, datas)
+    con.commit()
+    cur.close()
+    print("finished inserting from csv")
+
+
 
 class QtDatabase(object):
+
     def __init__(self, database_path):
+        self.database_path = database_path
         self.database_name = f"{os.path.basename(database_path)}{'.db'}"
         self.connection = QSqlDatabase.addDatabase('QSQLITE')
         self.connection.setDatabaseName(self.database_name)
-
     # @staticmethod
     def create_table(self, table_name, column_names):
         if not self.connection.open():
@@ -68,24 +128,16 @@ class QtDatabase(object):
 
         # insert data
         insert_query.exec()
-
+    
     def insert_csv(self, table_name, csv_file):
         with open(csv_file) as f:
             csv_reader = csv.reader(f, delimiter=',')
-
-            line_count = 0
-            for row in csv_reader:
-                # get column names and create table
-                if line_count == 0:
-                    column_names = row
-                    self.create_table(table_name, column_names)
-                    line_count += 1
-
-                # insert data
-                else:
-                    self.insert_data(table_name, column_names, row)
-
-        return column_names
+            # getting column names
+            column_names = next(csv_reader)
+            self.create_table(table_name, column_names)
+            thread_insert_to_db_function(csv_file, table_name, column_names, self.database_path)
+            
+            return column_names
 
     def insert_into_merged_timeline(self, selected_columns, merged_timeline_table):
         # create table merged-timeline
@@ -102,10 +154,8 @@ class QtDatabase(object):
                         column_sorted.insert(0, column_name)
                     else:
                         column_sorted.append(column_name)
-
                 elif column_type == 'event':
                     column_sorted.append(column_name)
-
             # build query string
             column_string = ''
             comma = ', '
