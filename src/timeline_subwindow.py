@@ -3,12 +3,13 @@ from PyQt5.QtWidgets import (
     QWidget,
     QVBoxLayout,
     QLineEdit,
+    QLabel,
     QTableView,
-    QLabel
+    QAbstractItemView
 )
+from CustomeDelegate import CustomeDelegate
 from PyQt5.QtSql import QSqlTableModel
 from PyQt5 import QtGui
-
 
 class TimelineSubWindow(QMdiSubWindow):
     def __init__(self, table_name, column_names, db_connection):
@@ -46,6 +47,13 @@ class TimelineSubWindow(QMdiSubWindow):
         table_label.setText('Merged timeline:')
         table_widget = QTableView()
         table_widget.setModel(self.table_model)
+        
+        # Define custom delegate to mark entity, pyqt stuff
+        custom_delegate = CustomeDelegate()
+        table_widget.setItemDelegate(custom_delegate)
+
+        # Disable editing
+        table_widget.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
         # search event
         search.textChanged.connect(self.update_filter)

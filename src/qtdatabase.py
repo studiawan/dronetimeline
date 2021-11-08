@@ -3,27 +3,30 @@ import csv
 from PyQt5.QtSql import QSqlDatabase, QSqlQuery
 
 import sqlite3, time, os, csv
+from EntityRecognition import EntityRecognition
 
-def thread_insert_to_db_function(csv_file, table_name, column_names, database_path):
+# Custome function using sqlite3 to import csv  
+def insert_csv_to_db(csv_file, table_name, column_names, database_path):
     time_start = time.time()
+
+
     con = sqlite3.connect(f"{os.path.basename(database_path)}{'.db'}")
     cur = con.cursor()
-    cur.execute(f"SELECT MAX(id) FROM {table_name}")
+
 
     # Check last entry of the database
+    cur.execute(f"SELECT MAX(id) FROM {table_name}")
     row = cur.fetchone()[0]
     last_inserted_id = int(row) if bool(row) else 0
-    
-    
+
     n = 1 # number of lines in csv
-    datas = []
-
-
+    datas = [] # list of datas that will go into sqlite
+    entity_recogntion = EntityRecognition()
     with open(csv_file) as f:
         n += sum(1 for line in f)
     with open(csv_file) as f:
         csv_reader = csv.reader(f, delimiter=',')
-        # skipping1 header
+        # skipping header
         next(csv_reader)
 
         # skipping last_inserted_id number of records
@@ -31,6 +34,13 @@ def thread_insert_to_db_function(csv_file, table_name, column_names, database_pa
             next(csv_reader)
             
         for row in csv_reader:
+            # find message and event column index
+            index_message = column_names.index('message')
+            index_event = column_names.index('event')
+
+            # Do entity recognition
+            row[index_message] = entity_recogntion.find_entity(row[index_message])
+            row[index_event] = entity_recogntion.find_entity(row[index_event])
             datas.append((row))
             
     column_string = ''
@@ -55,6 +65,7 @@ def thread_insert_to_db_function(csv_file, table_name, column_names, database_pa
     column_string += f"{values_string}"
     query_string = f"{'INSERT INTO '}{table_name}{column_string}"
     
+    # every datas that have been inserted to <list>datas will be inserted in one process
     cur.executemany(query_string, datas)
     con.commit()
     cur.close()
@@ -135,7 +146,7 @@ class QtDatabase(object):
             # getting column names
             column_names = next(csv_reader)
             self.create_table(table_name, column_names)
-            thread_insert_to_db_function(csv_file, table_name, column_names, self.database_path)
+            insert_csv_to_db(csv_file, table_name, column_names, self.database_path)
             
             return column_names
 
