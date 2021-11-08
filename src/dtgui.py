@@ -1,6 +1,8 @@
 import sys
 import os
 import re
+import time
+from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import (
     QMainWindow,
     QAction,
@@ -17,6 +19,9 @@ from merge_timeline_subwindow import MergeTimelineSubWindow
 
 
 class DtGui(QMainWindow):
+
+    ansel_signal_receiver = pyqtSignal(str, list)
+
     def __init__(self):
         super().__init__()
         self.main_window_title = 'DroneTimeline: Forensic Timeline Analysis for Drones'
@@ -28,6 +33,11 @@ class DtGui(QMainWindow):
         self.setCentralWidget(self.mdi)
         self.merged_timeline_table_name = 'mergedtimeline'
         self.init_ui()
+
+        self.ansel_signal_receiver.connect(self.timeline_subwindow_trigger)
+
+    def asdf(self, ass, df):
+        print(ass, df)
 
     def init_ui(self):
         self.statusBar()
@@ -130,21 +140,28 @@ class DtGui(QMainWindow):
                 table_name = re.sub('[\W_]+', '', table_name)
 
                 # insert csv file to database
-                column_names = self.database.insert_csv(table_name, file_name)
+                column_names = self.database.insert_csv(self, table_name, file_name)
 
                 # save timeline and its column names
                 self.timeline_columns[table_name] = column_names
-
-                # show timeline in an MDI window
-                self.timeline_subwindow_trigger(table_name, column_names)
-                message = f'{"Timeline is imported successfully: "}{table_name}{"."}'
-                self.show_info_messagebox(message)
+                
+                
+                # self.timeline_subwindow_trigger(table_name, column_names)
+                
 
     def timeline_subwindow_trigger(self, table_name, column_names):
-        # define and show timeline sub window
+
+        # define timeline sub window
         subwindow = TimelineSubWindow(table_name, column_names, self.database.connection)
+        
+        # show timeline in an MDI window
         self.mdi.addSubWindow(subwindow)
         subwindow.show_ui()
+
+        # Notification
+        message = f'{"Timeline is imported successfully: "}{table_name}{"."}'
+        self.show_info_messagebox(message)
+
 
     def merge_window_trigger(self):
         # define and show merge timeline config sub window
