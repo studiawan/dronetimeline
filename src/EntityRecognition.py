@@ -1,13 +1,20 @@
 import time
 import spacy
-from matcher_loader import MatcherLoader
 from spacy.tokens import Span
-time_start = time.time()
+import json
+from spacy.matcher import Matcher
 
+# This json contains all the rules that have been defined
+f = open('src/patterns.json',)
+dictionary = json.load(f)
+
+time_start = time.time()        
 class EntityRecognition:
     def __init__(self):
         self.nlp = spacy.load("en_core_web_sm")
-        self.matcher = MatcherLoader(self.nlp).matcher
+        self.matcher = Matcher(self.nlp.vocab, validate=True)
+        for element in dictionary:
+            self.matcher.add(element, [dictionary[element]])
         
     # Function to give rich text anotation to mark the entity
     def skadi_string_slicer(self,text, start, end,matched_string,string_id):

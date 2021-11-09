@@ -1,0 +1,19 @@
+{
+    "IP Address" : [
+        {
+            "TEXT": 
+                {"REGEX": "^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$"}
+        }],
+     "MAC Address" : [{"TEXT": {"REGEX": "^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$"}}],
+    "Root User" : [{"TEXT": "root"}],
+    "Proccess Identifier" : [{"TEXT": "pid"}, {"IS_PUNCT": true}, {"IS_DIGIT" : true}],
+    "Authentication Server" : [{"TEXT": "sshd"}],
+    
+    "Authentication Process" : [{"TEXT": "pam_unix"}, {"IS_PUNCT" : true}, {"TEXT" : "sshd"} , {"IS_PUNCT" : true}, {"TEXT" : "auth"}, {"IS_PUNCT" : true}],
+    "CRON Process" : [{"TEXT": "CRON"}],
+    "Port" : [{"TEXT" : "port"}, {"IS_DIGIT" : true}],
+    "Sudo Command" : [{"TEXT" : "sudo"}],
+    "Kernel Proccess" : [{"IS_PUNCT" : true}, {"TEXT" : "kernel"}, {"IS_PUNCT" : true}],
+    "Website" : [{"LIKE_URL": true}],
+    "E-mail" : [{"LIKE_EMAIL": true}]
+}
