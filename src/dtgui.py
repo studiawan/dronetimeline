@@ -1,7 +1,6 @@
 import sys
 import os
-import re
-import time
+import re, json
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import (
     QMainWindow,
@@ -16,7 +15,7 @@ from PyQt5 import QtGui
 from qtdatabase import QtDatabase
 from timeline_subwindow import TimelineSubWindow
 from merge_timeline_subwindow import MergeTimelineSubWindow
-
+from functools import partial
 
 class DtGui(QMainWindow):
 
@@ -32,8 +31,13 @@ class DtGui(QMainWindow):
         self.mdi = QMdiArea()
         self.setCentralWidget(self.mdi)
         self.merged_timeline_table_name = 'mergedtimeline'
+        # read json of Imported Timelines
+        # Opening JSON file
+        f = open('./timelines.json',)
+        self.imported_timeline = json.load(f)
         self.init_ui()
-
+        
+        
         self.ansel_signal_receiver.connect(self.timeline_subwindow_trigger)
 
     def asdf(self, ass, df):
@@ -55,6 +59,10 @@ class DtGui(QMainWindow):
         timeline_menu = menubar.addMenu('&Timeline')
         timeline_menu.addAction(self.merge_action())
         timeline_menu.addAction(self.show_merged_timeline_action())
+        
+
+        # Imported Timeline Menu
+        self.imported_timeline_action(timeline_menu)
 
         # show main window
         self.setWindowIcon(QtGui.QIcon('../assets/drone.png'))
@@ -97,6 +105,13 @@ class DtGui(QMainWindow):
 
         return merge_act
 
+    def imported_timeline_action(self, timeline_menu):
+        for timeline in self.imported_timeline:
+            timeline_act = QAction('Open timeline {} from case {}'.format(timeline["timeline_name"], timeline["case_name"]), self)
+            timeline_act.setStatusTip('Show imported timeline')
+            timeline_act.triggered.connect(partial(self.open_timeline_directly, timeline))
+            timeline_menu.addAction(timeline_act)
+
     def show_merged_timeline_action(self):
         show_merged_timeline_act = QAction('S&how Merged Timeline', self)
         show_merged_timeline_act.setShortcut('Ctrl+H')
@@ -104,6 +119,19 @@ class DtGui(QMainWindow):
         show_merged_timeline_act.triggered.connect(self.merged_timeline_window_trigger)
 
         return show_merged_timeline_act
+
+    def open_timeline_directly(self, timeline):
+        timeline_name= timeline["timeline_name"]
+        case_name= timeline["case_name"]
+        directory= timeline["directory"]
+        column_names= timeline["column_names"]        
+        self.database = QtDatabase(directory)
+        self.database.connection.open()
+
+        self.case_name = case_name
+        self.case_directory = directory
+        self.timeline_subwindow_trigger(timeline_name, column_names)
+
 
     def open_directory_dialog(self):
         directory = QFileDialog.getExistingDirectory(self, "Select Directory")
@@ -127,30 +155,52 @@ class DtGui(QMainWindow):
         else:
             options = QFileDialog.Options()
             options |= QFileDialog.DontUseNativeDialog
-            file_name, _ = QFileDialog.getOpenFileName(self, "Open file", "", "All Files (*)",
+            directory, _ = QFileDialog.getOpenFileName(self, "Open file", "", "All Files (*)",
                                                        options=options)
-            if file_name:
-                print(file_name)
+            if directory:
+                print(directory)
 
                 # insert timeline to database
-                table_name = os.path.basename(file_name)
+                table_name = os.path.basename(directory)
                 table_name = os.path.splitext(table_name)[0]
 
                 # make sure table name is alphanumeric
                 table_name = re.sub('[\W_]+', '', table_name)
 
                 # insert csv file to database
-                column_names = self.database.insert_csv(self, table_name, file_name)
+                column_names = self.database.insert_csv(self, table_name, directory)
 
                 # save timeline and its column names
                 self.timeline_columns[table_name] = column_names
                 
-                
+                self.input_imported_timeline(table_name, column_names)
                 # self.timeline_subwindow_trigger(table_name, column_names)
-                
+    
+    def input_imported_timeline(self, table_name, column_names):
+        lists = {
+            "timeline_name": table_name,
+            "case_name": self.case_name, 
+            "directory": self.case_directory, 
+            "column_names": column_names
+        }
+        datas = None
+        if(os.path.isfile('./timelines.json')):
+            with open('./timelines.json', "r+") as file:    
+                try: 
+                    datas = json.load(file)
+                except:
+                    datas=[]
+                datas.append(lists)
+        else :
+            open('./timelines.json', "w+")
+            datas = []
+            datas.append(lists)
+
+        with open('./timelines.json', 'w') as outfile:
+            json.dump(datas, outfile, indent=4)
+
 
     def timeline_subwindow_trigger(self, table_name, column_names):
-
         # define timeline sub window
         subwindow = TimelineSubWindow(table_name, column_names, self.database.connection)
         
