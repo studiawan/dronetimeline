@@ -1,0 +1,51 @@
+{
+    "IP Address" : {
+        "rule": [{"TEXT": {"REGEX": "^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$"}}],
+        "IOB" : "IPADDR"
+    },
+    "MAC Address" : {
+        "rule" : [{"TEXT": {"REGEX": "^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$"}}],
+        "IOB" : "MACADDR"
+    },
+    "Root User" : {
+        "rule" : [{"TEXT": "root"}],
+        "IOB" : "MACADDR"
+    },
+    "Proccess Identifier" : {
+        "rule" : [{"TEXT": "pid"}, {"IS_PUNCT": true}, {"IS_DIGIT" : true}],
+        "IOB" : "PID"
+    },
+    "Authentication Server" : {
+        "rule" : [{"TEXT": "sshd"}],
+        "IOB" : "SSHD"
+    },
+    
+    "Authentication Process" : {
+        "rule" : [{"TEXT": "pam_unix"}, {"IS_PUNCT" : true}, {"TEXT" : "sshd"} , {"IS_PUNCT" : true}, {"TEXT" : "auth"}, {"IS_PUNCT" : true}],
+        "IOB" : "SER"
+    },
+    "CRON Process" : {
+        "rule" : [{"TEXT": "CRON"}],
+        "IOB" : "CRON"
+    },
+    "Port" : {
+        "rule" : [{"TEXT" : "port"}, {"IS_DIGIT" : true}],
+        "IOB" : "PORT"
+    },
+    "Sudo Command" : {
+        "rule" : [{"TEXT" : "sudo"}],
+        "IOB" : "SUDO"
+    },
+    "Kernel Proccess" : {
+        "rule" : [{"IS_PUNCT" : true}, {"TEXT" : "kernel"}, {"IS_PUNCT" : true}],
+        "IOB" : "KERNL"
+    },
+    "Website" : {
+        "rule" : [{"LIKE_URL": true}],
+        "IOB" : "WEBSITE"
+    },
+    "E-mail" : {
+        "rule" : [{"LIKE_EMAIL": true}],
+        "IOB" : "EMAIL"
+    }
+}

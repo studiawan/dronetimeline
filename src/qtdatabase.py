@@ -2,8 +2,6 @@ import os
 import csv
 import threading
 from PyQt5.QtSql import QSqlDatabase, QSqlQuery
-import signal
-import sqlite3, time, os, csv
 from EntityRecognition import EntityRecognition
 from csv_read_subwindow import CSVReadSubWindow
 
@@ -111,7 +109,7 @@ class QtDatabase(object):
             column_string = ''
             comma = ', '
             column_names_len = len(column_sorted)
-
+            
             # column names
             for index, column_name in enumerate(column_sorted):
                 if index == column_names_len - 1:
