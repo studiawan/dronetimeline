@@ -14,6 +14,7 @@ class QtDatabase(object):
         self.database_name = f"{os.path.basename(database_path)}{'.db'}"
         self.connection = QSqlDatabase.addDatabase('QSQLITE')
         self.connection.setDatabaseName(self.database_name)
+        self.connection.open()
     # @staticmethod
     def create_table(self, table_name, column_names):
         if not self.connection.open():

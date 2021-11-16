@@ -3,7 +3,6 @@ from PyQt5.QtWidgets import (
     QMdiSubWindow,
     QProgressBar,
 )
-from spacy.tokens import Span
 import sqlite3, time, os, csv, json
 from EntityRecognition import EntityRecognition
 
@@ -104,7 +103,7 @@ class CSVReadSubWindow(QMdiSubWindow):
         print("finished inserting from csv")
         self.progress.setValue(100)
 
-        parent.ansel_signal_receiver.emit(table_name, column_names)
+        parent.ansel_signal_receiver.emit(table_name)
 
     def show_ui(self):
         # set title and geometry

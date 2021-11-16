@@ -1,3 +1,5 @@
+from json.decoder import JSONDecodeError
+from posixpath import expanduser
 import sys
 import os
 import re, json
@@ -19,7 +21,7 @@ from functools import partial
 
 class DtGui(QMainWindow):
 
-    ansel_signal_receiver = pyqtSignal(str, list)
+    ansel_signal_receiver = pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
@@ -31,17 +33,25 @@ class DtGui(QMainWindow):
         self.mdi = QMdiArea()
         self.setCentralWidget(self.mdi)
         self.merged_timeline_table_name = 'mergedtimeline'
-        # read json of Imported Timelines
-        # Opening JSON file
-        f = open('./timelines.json',)
-        self.imported_timeline = json.load(f)
+        self.saved_timeline = self.set_saved_timeline()
         self.init_ui()
-        
-        
         self.ansel_signal_receiver.connect(self.timeline_subwindow_trigger)
 
-    def asdf(self, ass, df):
-        print(ass, df)
+    def set_saved_timeline(self):
+         # read json of Saved Timelines
+        # Opening JSON file
+        timelines = {}
+        if(os.path.isfile('./timelines.json')):
+            with open('./timelines.json', "r") as file:    
+                try: 
+                    timelines = json.load(file)
+                except: 
+                    timelines = {}
+        else :
+            with open('./timelines.json', 'w+') as outfile:
+                json.dump(timelines, outfile, indent=4)
+
+        return timelines
 
     def init_ui(self):
         self.statusBar()
@@ -61,15 +71,27 @@ class DtGui(QMainWindow):
         timeline_menu.addAction(self.show_merged_timeline_action())
         
 
-        # Imported Timeline Menu
-        self.imported_timeline_action(timeline_menu)
+        # saved Timeline Menu
+        saved_timeline_menu = menubar.addMenu('&Saved Timeline')
+        
+        self.saved_timeline_action(saved_timeline_menu)
 
         # show main window
         self.setWindowIcon(QtGui.QIcon('../assets/drone.png'))
         self.setGeometry(50, 50, 800, 600)
         self.setWindowTitle(self.main_window_title)
         self.show()
+    
+    
+    def savedtimeline_action(self):
+        
+        savedtimeline_action = QAction('&Saved Timeline', self)
+        # newcase_act.setShortcut('Ctrl+N')
+        savedtimeline_action.setStatusTip('Select case directory')
+        savedtimeline_action.triggered.connect(self.open_directory_dialog)
 
+        return savedtimeline_action
+    
     def newcase_action(self):
         newcase_act = QAction('&Select Case Directory', self)
         newcase_act.setShortcut('Ctrl+N')
@@ -105,12 +127,14 @@ class DtGui(QMainWindow):
 
         return merge_act
 
-    def imported_timeline_action(self, timeline_menu):
-        for timeline in self.imported_timeline:
-            timeline_act = QAction('Open timeline {} from case {}'.format(timeline["timeline_name"], timeline["case_name"]), self)
-            timeline_act.setStatusTip('Show imported timeline')
-            timeline_act.triggered.connect(partial(self.open_timeline_directly, timeline))
-            timeline_menu.addAction(timeline_act)
+    def saved_timeline_action(self, saved_timeline_menu):
+        for directory in self.saved_timeline:
+            savedmenu = saved_timeline_menu.addMenu(directory)
+            for timeline_name in self.saved_timeline[directory]["timelines"]:
+                timeline_act = QAction('Open timeline {}'.format(timeline_name), self)
+                timeline_act.setStatusTip('Show saved timeline')
+                timeline_act.triggered.connect(partial(self.open_timeline_directly, directory, timeline_name, self.saved_timeline[directory]["timelines"][timeline_name]))
+                savedmenu.addAction(timeline_act)
 
     def show_merged_timeline_action(self):
         show_merged_timeline_act = QAction('S&how Merged Timeline', self)
@@ -120,17 +144,17 @@ class DtGui(QMainWindow):
 
         return show_merged_timeline_act
 
-    def open_timeline_directly(self, timeline):
-        timeline_name= timeline["timeline_name"]
-        case_name= timeline["case_name"]
-        directory= timeline["directory"]
-        column_names= timeline["column_names"]        
+    def open_timeline_directly(self, directory, timeline_name, column_names):
+
         self.database = QtDatabase(directory)
         self.database.connection.open()
 
-        self.case_name = case_name
+        self.case_name = os.path.basename(directory)
         self.case_directory = directory
-        self.timeline_subwindow_trigger(timeline_name, column_names)
+        self.timeline_subwindow_trigger(timeline_name)
+
+         # save timeline and its column names something for merge timelines
+        self.timeline_columns[self.case_name] = column_names
 
 
     def open_directory_dialog(self):
@@ -173,36 +197,41 @@ class DtGui(QMainWindow):
                 # save timeline and its column names
                 self.timeline_columns[table_name] = column_names
                 
-                self.input_imported_timeline(table_name, column_names)
+                self.input_saved_timeline(table_name, column_names)
                 # self.timeline_subwindow_trigger(table_name, column_names)
     
-    def input_imported_timeline(self, table_name, column_names):
-        lists = {
-            "timeline_name": table_name,
-            "case_name": self.case_name, 
-            "directory": self.case_directory, 
-            "column_names": column_names
-        }
+    # Add saved timeline details to speed up reading process
+    def input_saved_timeline(self, table_name, column_names):
         datas = None
         if(os.path.isfile('./timelines.json')):
             with open('./timelines.json', "r+") as file:    
-                try: 
+                try:
                     datas = json.load(file)
                 except:
-                    datas=[]
-                datas.append(lists)
+                    datas={}
+                if not self.case_directory in datas:
+                    datas[self.case_directory] = {}
+                if not 'timelines' in datas[self.case_directory]:
+                    datas[self.case_directory]["timelines"] = {}
+
+                if not table_name in datas[self.case_directory]["timelines"]: 
+                    datas[self.case_directory]["timelines"][table_name] = column_names
         else :
             open('./timelines.json', "w+")
-            datas = []
-            datas.append(lists)
+            datas={}
+            datas[self.case_directory] = {}
+            datas[self.case_directory]["timelines"] = {}
+            datas[self.case_directory]["timelines"][table_name] = column_names
 
         with open('./timelines.json', 'w') as outfile:
             json.dump(datas, outfile, indent=4)
 
 
-    def timeline_subwindow_trigger(self, table_name, column_names):
+
+
+    def timeline_subwindow_trigger(self, table_name):
         # define timeline sub window
-        subwindow = TimelineSubWindow(table_name, column_names, self.database.connection)
+        subwindow = TimelineSubWindow(table_name, self.database.connection)
         
         # show timeline in an MDI window
         self.mdi.addSubWindow(subwindow)
