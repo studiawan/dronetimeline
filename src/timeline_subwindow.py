@@ -3,18 +3,19 @@ from PyQt5.QtWidgets import (
     QWidget,
     QVBoxLayout,
     QLineEdit,
+    QLabel,
     QTableView,
-    QLabel
+    QAbstractItemView
 )
+from CustomeDelegate import CustomeDelegate
 from PyQt5.QtSql import QSqlTableModel
 from PyQt5 import QtGui
 
-
 class TimelineSubWindow(QMdiSubWindow):
-    def __init__(self, table_name, column_names, db_connection):
+    def __init__(self, table_name, db_connection):
         super().__init__()
         self.table_name = table_name
-        self.column_names = column_names
+        self.column_names = self.set_column_names(db_connection)
         self.db_connection = db_connection
         self.table_model = None
         self.event_columns = ['message', 'event']
@@ -46,6 +47,13 @@ class TimelineSubWindow(QMdiSubWindow):
         table_label.setText('Merged timeline:')
         table_widget = QTableView()
         table_widget.setModel(self.table_model)
+        
+        # Define custom delegate to mark entity, pyqt stuff
+        custom_delegate = CustomeDelegate()
+        table_widget.setItemDelegate(custom_delegate)
+
+        # Disable editing
+        # table_widget.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
         # search event
         search.textChanged.connect(self.update_filter)
@@ -73,3 +81,11 @@ class TimelineSubWindow(QMdiSubWindow):
         percent = '%'
         filter_str = f"{self.event_column}{' LIKE '}\"{percent}{s}{percent}\""
         self.table_model.setFilter(filter_str)
+
+    def set_column_names(self, dbconnection):
+        column_names = []
+        record = dbconnection.record(self.table_name)
+        for i in range(0, record.count()):
+            column_names.append(record.fieldName(i))
+
+        return column_names

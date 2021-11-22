@@ -1,7 +1,11 @@
 import os
 import csv
+import threading
 from PyQt5.QtSql import QSqlDatabase, QSqlQuery
-import time
+from csv_read_subwindow import CSVReadSubWindow
+
+# Custome function using sqlite3 to import csv  
+
 class QtDatabase(object):
 
     def __init__(self, database_path):
@@ -9,6 +13,7 @@ class QtDatabase(object):
         self.database_name = f"{os.path.basename(database_path)}{'.db'}"
         self.connection = QSqlDatabase.addDatabase('QSQLITE')
         self.connection.setDatabaseName(self.database_name)
+        self.connection.open()
     # @staticmethod
     def create_table(self, table_name, column_names):
         if not self.connection.open():
@@ -69,17 +74,18 @@ class QtDatabase(object):
         # insert data
         insert_query.exec()
     
-    def insert_csv(self, table_name, csv_file):
+    def insert_csv(self, parent, table_name, csv_file):
         with open(csv_file) as f:
             csv_reader = csv.reader(f, delimiter=',')
             # getting column names
             column_names = next(csv_reader)
             self.create_table(table_name, column_names)
 
-            # using csv_read_window for inserting to csv
-            from csv_read_subwindow import CSVReadSubWindow
-            subwindow = CSVReadSubWindow(csv_file, table_name, column_names, self.database_path)
-            subwindow.show_ui()
+            progress_subwindow = CSVReadSubWindow(csv_file, table_name, column_names, self.database_path)
+            progress_subwindow.show_ui()
+            
+            thread = threading.Thread(target=progress_subwindow.insert_csv_to_db, args=(parent, csv_file, table_name, column_names, self.database_path))
+            thread.start()
             return column_names
 
     def insert_into_merged_timeline(self, selected_columns, merged_timeline_table):
@@ -103,7 +109,7 @@ class QtDatabase(object):
             column_string = ''
             comma = ', '
             column_names_len = len(column_sorted)
-
+            
             # column names
             for index, column_name in enumerate(column_sorted):
                 if index == column_names_len - 1:
