@@ -9,9 +9,6 @@ from PyQt5.QtWidgets import (
     QTextEdit,
     QApplication,
 )
-
-
-import time
 import spacy
 from spacy.tokens import Span
 import json

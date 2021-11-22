@@ -9,8 +9,6 @@ from EntityRecognition import EntityRecognition
 # This json contains all the rules that have been defined
 f = open('src/rules.json',)
 dictionary = json.load(f)
-
-
 class CSVReadSubWindow(QMdiSubWindow):
     def __init__(self, csv_file, table_name, column_names, database_path):
         super().__init__()
@@ -103,7 +101,7 @@ class CSVReadSubWindow(QMdiSubWindow):
         print("finished inserting from csv")
         self.progress.setValue(100)
 
-        parent.ansel_signal_receiver.emit(table_name)
+        parent.ansel_signal_receiver.emit(table_name, column_names)
 
     def show_ui(self):
         # set title and geometry

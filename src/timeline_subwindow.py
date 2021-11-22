@@ -12,10 +12,10 @@ from PyQt5.QtSql import QSqlTableModel
 from PyQt5 import QtGui
 
 class TimelineSubWindow(QMdiSubWindow):
-    def __init__(self, table_name, db_connection):
+    def __init__(self, table_name, column_names , db_connection):
         super().__init__()
         self.table_name = table_name
-        self.column_names = self.set_column_names(db_connection)
+        self.column_names = column_names
         self.db_connection = db_connection
         self.table_model = None
         self.event_columns = ['message', 'event']
@@ -53,7 +53,7 @@ class TimelineSubWindow(QMdiSubWindow):
         table_widget.setItemDelegate(custom_delegate)
 
         # Disable editing
-        table_widget.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        # table_widget.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
         # search event
         search.textChanged.connect(self.update_filter)
