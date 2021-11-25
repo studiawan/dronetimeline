@@ -44,7 +44,7 @@ class TimelineSubWindow(QMdiSubWindow):
 
         # define table widget
         table_label = QLabel()
-        table_label.setText('Merged timeline:')
+        table_label.setText('Timeline:')
         table_widget = QTableView()
         table_widget.setModel(self.table_model)
         
