@@ -128,13 +128,16 @@ class DtGui(QMainWindow):
         return merge_act
 
     def saved_timeline_action(self, saved_timeline_menu):
-        for directory in self.saved_timeline:
-            savedmenu = saved_timeline_menu.addMenu(directory)
-            for timeline_name in self.saved_timeline[directory]["timelines"]:
-                timeline_act = QAction('Open timeline {}'.format(timeline_name), self)
-                timeline_act.setStatusTip('Show saved timeline')
-                timeline_act.triggered.connect(partial(self.open_timeline_directly, directory, timeline_name, self.saved_timeline[directory]["timelines"][timeline_name]))
-                savedmenu.addAction(timeline_act)
+        if(self.saved_timeline):
+            for directory in self.saved_timeline:
+                savedmenu = saved_timeline_menu.addMenu(directory)
+                for timeline_name in self.saved_timeline[directory]["timelines"]:
+                    timeline_act = QAction('Open timeline {}'.format(timeline_name), self)
+                    timeline_act.setStatusTip('Show saved timeline')
+                    timeline_act.triggered.connect(partial(self.open_timeline_directly, directory, timeline_name, self.saved_timeline[directory]["timelines"][timeline_name]))
+                    savedmenu.addAction(timeline_act)
+        else : 
+            saved_timeline_menu.addAction(QAction('No Saved timelines', self))
 
     def show_merged_timeline_action(self):
         show_merged_timeline_act = QAction('S&how Merged Timeline', self)
