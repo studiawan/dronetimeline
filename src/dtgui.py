@@ -25,7 +25,7 @@ class DtGui(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.main_window_title = 'DroneTimeline: Forensic Timeline Analysis for Drones'
+        self.main_window_title = 'Forensic Timeline Analysis with Rule Based Entity Recognition'
         self.database = None
         self.case_name = ''
         self.case_directory = ''
@@ -66,9 +66,9 @@ class DtGui(QMainWindow):
         file_menu.addAction(self.exit_action())
 
         # Timeline menu
-        timeline_menu = menubar.addMenu('&Timeline')
-        timeline_menu.addAction(self.merge_action())
-        timeline_menu.addAction(self.show_merged_timeline_action())
+        # timeline_menu = menubar.addMenu('&Timeline')
+        # timeline_menu.addAction(self.merge_action())
+        # timeline_menu.addAction(self.show_merged_timeline_action())
         
 
         # saved Timeline Menu
@@ -119,13 +119,13 @@ class DtGui(QMainWindow):
 
         return exit_act
 
-    def merge_action(self):
-        merge_act = QAction('&Merge Timelines', self)
-        merge_act.setShortcut('Ctrl+M')
-        merge_act.setStatusTip('Merge timelines')
-        merge_act.triggered.connect(self.merge_window_trigger)
+    # def merge_action(self):
+    #     merge_act = QAction('&Merge Timelines', self)
+    #     merge_act.setShortcut('Ctrl+M')
+    #     merge_act.setStatusTip('Merge timelines')
+    #     merge_act.triggered.connect(self.merge_window_trigger)
 
-        return merge_act
+    #     return merge_act
 
     def saved_timeline_action(self, saved_timeline_menu):
 
