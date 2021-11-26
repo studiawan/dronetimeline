@@ -123,12 +123,7 @@ class rule_tester(QMainWindow):
 
 
             # formating the text
-            formats = '''
-            "{}" : {}
-                "rule" : "{}", 
-                "IOB" : "{}"
-            {}'''.format(entity_tag, '{', str(self.rule_text_box.text()), IOB_Tag, '}')
-
+            formats = '{}"id": "{}", "label" : "{}", "pattern": {}{}'.format('{', entity_tag, IOB_Tag, str(self.rule_text_box.text()), '}')
             self.final_rule.setText(formats)
 
         except:

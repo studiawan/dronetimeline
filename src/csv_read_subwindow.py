@@ -6,9 +6,6 @@ from PyQt5.QtWidgets import (
 import sqlite3, time, os, csv, json
 from EntityRecognition import EntityRecognition
 
-# This json contains all the rules that have been defined
-f = open('src/rules.json',)
-dictionary = json.load(f)
 class CSVReadSubWindow(QMdiSubWindow):
     def __init__(self, csv_file, table_name, column_names, database_path):
         super().__init__()
@@ -56,12 +53,12 @@ class CSVReadSubWindow(QMdiSubWindow):
                 index_event = column_names.index('event')
 
                 # Do entity recognition
-                row[index_message], doc, matches, nlp = entity_recogntion.find_entity(row[index_message])
-                row[index_event], doc, matches, nlp = entity_recogntion.find_entity(row[index_event])
+                row[index_event], doc, entities = entity_recogntion.find_entity(row[index_event])
+                row[index_message], doc , entities = entity_recogntion.find_entity(row[index_message])
                 datas.append((row))
 
                 # IOB.txt Generator
-                hasil = self.saria_IOB_formater(doc, matches, dictionary, nlp)
+                hasil = entity_recogntion.saria_IOB_formater(doc, entities)
                 for x in hasil :
                     write.write(str(x[0]) + " " + str(x[1]) + '\n')
                 write.write('\n')
@@ -112,19 +109,3 @@ class CSVReadSubWindow(QMdiSubWindow):
         self.progress.setValue(0)
         self.resize(300, 100)
         self.show()
-        
-    def saria_IOB_formater(self, doc, matches, dictionary, nlp):
-        array = []
-        for x in doc:
-            array.append(('O', x))
-        for match_id, start, end in matches:
-            string_id = nlp.vocab.strings[match_id] #id of the entity based on the rules created
-            if "IOB" in dictionary[string_id]:
-                IOB_Tag = dictionary[string_id]["IOB"]
-            else :
-                IOB_Tag = string_id
-            array[start] = '{}-{}'.format('B', IOB_Tag), doc[start]
-
-            for i in range(start+1, end):
-                array[i] = '{}-{}'.format('I', IOB_Tag), doc[i]
-        return array

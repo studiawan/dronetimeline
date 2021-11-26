@@ -2,21 +2,15 @@ import time
 import spacy
 from spacy.tokens import Span
 import json
-from spacy.matcher import Matcher
-
+# from spacy.matcher import Matcher
+from spacy.lang.en import English
 # This json contains all the rules that have been defined
-f = open('src/rules.json',)
-dictionary = json.load(f)
 
 time_start = time.time()        
 class EntityRecognition:
     def __init__(self):
-        self.nlp = spacy.load("en_core_web_sm")
-        self.matcher = Matcher(self.nlp.vocab, validate=True)
-
-        # importing rules
-        for element in dictionary:
-            self.matcher.add(element, [dictionary[element]["rule"]])
+        self.nlp = English()
+        self.ruler = self.nlp.add_pipe("entity_ruler").from_disk("src/rules.jsonl")
         
     # Function to give rich text anotation to marking entities
     def skadi_string_slicer(self,doc, start, end,matched_string,string_id):
@@ -32,16 +26,17 @@ class EntityRecognition:
 
     def find_entity(self,string):
         doc = self.nlp(string)
-        matches = self.matcher(doc)
+        # matches = self.matcher(doc)
         list_of_matches = []
+        entities = []
         
-        for match_id, start, end in matches:
-            span = Span(doc, start, end, label=match_id)
-            matched_string = span.text #string that matched the rule
-            string_id = self.nlp.vocab.strings[match_id] #id of the entity based on the rules created
+        for ent in doc.ents:
+            matched_string = ent.text #string that matched the rule
+            string_id = ent.ent_id_ #id of the entity based on the rules created
 
-            matched_details = self.skadi_string_slicer(doc, start, end,matched_string,string_id)
+            matched_details = self.skadi_string_slicer(doc, ent.start, ent.end, matched_string, string_id)
             list_of_matches.append(matched_details)
+            entities.append(ent)
 
         # assuming spaCy finds entity from start of the string to the end of the string,
         # entity marking implemented from end of the string to start of the string
@@ -52,4 +47,15 @@ class EntityRecognition:
 
             string = string[0:start_char_index]+string[start_char_index:end_char_index].replace(string[start_char_index:end_char_index],marked_string)+ string[end_char_index:]            
 
-        return string, doc, matches, self.nlp
+        return string, doc, entities
+
+    def saria_IOB_formater(self, doc, entities):
+        array = []
+        for x in doc:
+            array.append(('O', x))
+        for ent in entities:
+            label = ent.label_ #id of the entity based on the rules created
+            array[ent.start] = '{}-{}'.format('B', label), doc[ent.start]
+            for i in range(ent.start+1, ent.end):
+                array[i] = '{}-{}'.format('I', label), doc[i]
+        return array
