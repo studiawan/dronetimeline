@@ -31,12 +31,15 @@ class EntityRecognitionModified:
 
 
     def find_entity(self,string, entity_tag, ruletextboxValue):
+        
         self.matcher = Matcher(self.nlp.vocab, validate=True)
         self.matcher.add(entity_tag, [ruletextboxValue])
         doc = self.nlp(string)
         matches = self.matcher(doc)
         list_of_matches = []
-        
+        for entity in doc:
+            print(entity)
+
         for match_id, start, end in matches:
             span = Span(doc, start, end, label=match_id)
             matched_string = span.text #string that matched the rule
@@ -126,8 +129,8 @@ class rule_tester(QMainWindow):
             formats = '{}"id": "{}", "label" : "{}", "pattern": {}{}'.format('{', entity_tag, IOB_Tag, str(self.rule_text_box.text()), '}')
             self.final_rule.setText(formats)
 
-        except:
-            self.results.setText('Error, make sure the rule is valid')
+        except Exception as e:
+            self.results.setText(str(e))
             self.final_rule.setText("")
 
 def main():
