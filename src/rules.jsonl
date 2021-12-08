@@ -11,7 +11,7 @@
 {"id" : "E-mail", "label" : "EMAIL", "pattern" : [{"LIKE_EMAIL": true}]}
 {"id" : "Authentication Process",  "label" : "AUTHPROC", "pattern" : [{"TEXT": {"REGEX": "^pam_unix"}}, {"IS_PUNCT": true}, {"TEXT": "auth"}, {"IS_PUNCT": true}]}
 {"id" : "Session Process", "label" : "SESSPROC", "pattern" : [{"TEXT": {"REGEX": "^pam_unix"}}, {"IS_PUNCT": true}, {"TEXT": "session"}, {"IS_PUNCT": true}]}
-{"id" : "Peripheral Component Interconnect", "label" : "PCI", "pattern" : [{"TEXT" : "PCI"}, {"IS_PUNCT" : true}]}
+{"id" : "Peripheral Component Interconnect", "label" : "PCI", "pattern" : [{"TEXT" : "PCI"}]}
 {"id" : "Advanced Configuration and Power Interface", "label" : "ACPI", "pattern" : [{"TEXT" : "ACPI"}, {"IS_PUNCT" : true}]}
 {"id" : "Complementary metal-oxide-semiconductor", "label" : "CMOS", "pattern" : [{"TEXT" : "CMOS"}]}
 {"id" : "dhcp client", "label" : "DHCLIEN", "pattern" : [{"TEXT" : "dhclient"}]}
@@ -20,3 +20,8 @@
 {"id" : "Prefetch", "label" : "PREFETCH", "pattern" : [{"TEXT" : "PREFETCH"}]}
 {"id" : "Add User", "label" : "USRADD", "pattern" : [{"TEXT" : "useradd"}]}
 {"id" : "IP Address and Port", "label" : "IPPORT", "pattern": [{"TEXT": {"REGEX": "(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$"}}, {"IS_PUNCT": true}, {"IS_DIGIT" : true}]}
+{"id" : "Software Suspend", "label" : "SWSUSP", "pattern" : [{"TEXT" : "swsusp"}]}
+{"id" : "Network Time Protocol daemon", "label" : "ntpd", "pattern" : [{"TEXT" : "ntpd"}]}
+{"id" : "Advanced Programmable Interrupt Controller", "label" : "APIC", "pattern" : [{"TEXT" : "APIC"}]}
+{"id" : "Password Command", "label" : "PASSWD", "pattern" : [{"TEXT" : "passwd"}]}
+{"id" : "Bluetooth", "label" : "BLUTOT", "pattern" : [{"TEXT" : "Bluetooth"}, {"IS_PUNCT": true}]}
