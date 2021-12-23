@@ -3,8 +3,10 @@ from PyQt5.QtWidgets import (
     QMdiSubWindow,
     QProgressBar,
 )
-import sqlite3, time, os, csv, json
+import sqlite3, time, os, csv, sys
 from EntityRecognition import EntityRecognition
+
+csv.field_size_limit(sys.maxsize)
 
 class CSVReadSubWindow(QMdiSubWindow):
     def __init__(self, csv_file, table_name, column_names, database_path):
@@ -32,6 +34,7 @@ class CSVReadSubWindow(QMdiSubWindow):
         n = 1 # number of lines in csv
         datas = [] # list of datas that will go into sqlite
         entity_recogntion = EntityRecognition()
+        
         with open(csv_file) as f:
             n += sum(1 for line in f)
 

@@ -1,7 +1,5 @@
-from posixpath import expanduser
 import sys
 import json
-from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import (
     QLineEdit,
     QMainWindow,
@@ -62,7 +60,7 @@ class rule_tester(QMainWindow):
     def __init__(self):
         super().__init__()
         self.entity_recog_mod = EntityRecognitionModified()
-        self.main_window_title = 'Rule tester to test rules'
+        self.main_window_title = 'Rule maker to test and make rules'
 
         self.rule_text_box = QLineEdit(self)
         self.rule_text_box.move(20, 20)
@@ -123,7 +121,6 @@ class rule_tester(QMainWindow):
             ruletextboxValue = json.loads(self.rule_text_box.text())
             results = self.entity_recog_mod.find_entity(example_text_textbox, entity_tag, ruletextboxValue)
             self.results.setText(results)
-
 
             # formating the text
             formats = '{}"id": "{}", "label" : "{}", "pattern": {}{}'.format('{', entity_tag, IOB_Tag, str(self.rule_text_box.text()), '}')
