@@ -10,8 +10,9 @@ time_start = time.time()
 class EntityRecognition:
     def __init__(self):
         self.nlp = English()
-        self.ruler = self.nlp.add_pipe("entity_ruler").from_disk("src/rules.jsonl")
-        
+        self.ruler = self.nlp.add_pipe("entity_ruler", config={"overwrite_ents": "true"}).from_disk("src/rules.jsonl")
+        self.ruler_entity_dependend = self.nlp.add_pipe("entity_ruler", name = "entity_dependend_ruler", config={"overwrite_ents": "true"}).from_disk("src/entity_dependend_rules.jsonl")
+
     # Function to give rich text anotation to marking entities
     def skadi_string_slicer(self,doc, start, end,matched_string,string_id):
         strings = doc.text
@@ -59,3 +60,8 @@ class EntityRecognition:
             for i in range(ent.start+1, ent.end):
                 array[i] = '{}-{}'.format('I', label), doc[i]
         return array
+
+
+if __name__ == "__main__":
+    EntityRecognition()
+    print("done")

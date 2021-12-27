@@ -14,7 +14,7 @@ from spacy.matcher import Matcher
 
 class EntityRecognitionModified:
     def __init__(self):
-        self.nlp = spacy.load("en_core_web_sm")
+        return 
 
     # Function to give rich text anotation to marking entities
     def skadi_string_slicer(self,doc, start, end,matched_string,string_id):
@@ -28,22 +28,32 @@ class EntityRecognitionModified:
         return strings, start_char_index, end_char_index
 
 
-    def find_entity(self,string, entity_tag, ruletextboxValue):
+    def find_entity(self,string, entity_tag, IOB_TAG, patterntextboxValue):
+        nlp = spacy.load("en_core_web_sm")
+        patterntextboxValue = patterntextboxValue.split(';')
+        patterns = []
+
+        i = 0
+        for pattern in patterntextboxValue:
+            ruler = nlp.add_pipe("entity_ruler", name=entity_tag[i], config={"overwrite_ents": "true"})
+            formats = '{}"id": "{}", "label" : "{}", "pattern": {}{}'.format('{', entity_tag[i], IOB_TAG[i], pattern, '}')
+            patterns = json.loads(formats)
+            ruler.add_patterns([patterns])
+            i+=1
         
-        self.matcher = Matcher(self.nlp.vocab, validate=True)
-        self.matcher.add(entity_tag, [ruletextboxValue])
-        doc = self.nlp(string)
-        matches = self.matcher(doc)
+
+        # self.matcher = Matcher(self.nlp.vocab, validate=True)
+        # self.matcher.add(entity_tag[0], [pattern], "label")
+        doc = nlp(string)
+        # matches = self.matcher(doc)
         list_of_matches = []
         for entity in doc:
             print(entity)
-
-        for match_id, start, end in matches:
-            span = Span(doc, start, end, label=match_id)
-            matched_string = span.text #string that matched the rule
-            string_id = self.nlp.vocab.strings[match_id] #id of the entity based on the rules created
-
-            matched_details = self.skadi_string_slicer(doc, start, end,matched_string,string_id)
+            
+        for ent in doc.ents:
+            matched_string = ent.text #string that matched the rule
+            string_id = ent.ent_id_ #id of the entity based on the rules created
+            matched_details = self.skadi_string_slicer(doc, ent.start, ent.end, matched_string, string_id)
             list_of_matches.append(matched_details)
 
         # assuming spaCy finds entity from start of the string to the end of the string,
@@ -62,10 +72,10 @@ class rule_tester(QMainWindow):
         self.entity_recog_mod = EntityRecognitionModified()
         self.main_window_title = 'Rule maker to test and make rules'
 
-        self.rule_text_box = QLineEdit(self)
-        self.rule_text_box.move(20, 20)
-        self.rule_text_box.resize(800,40)
-        self.rule_text_box.setPlaceholderText("Insert rule here")
+        self.patterns_text_box = QLineEdit(self)
+        self.patterns_text_box.move(20, 20)
+        self.patterns_text_box.resize(800,40)
+        self.patterns_text_box.setPlaceholderText("Insert patterns here")
 
 
         self.example_text_textbox = QLineEdit(self)
@@ -117,15 +127,22 @@ class rule_tester(QMainWindow):
         entity_tag = self.entity_tag.text() if self.entity_tag.text()!='' else "example_tag"
         IOB_Tag = self.IOB.text() if self.IOB.text()!='' else "example_IOB"
         example_text_textbox = self.example_text_textbox.text()
+        IOB_Tag = IOB_Tag.split(';')
+        entity_tag = entity_tag.split(";")
         try:
-            ruletextboxValue = json.loads(self.rule_text_box.text())
-            results = self.entity_recog_mod.find_entity(example_text_textbox, entity_tag, ruletextboxValue)
+            patternstextboxValue = self.patterns_text_box.text()
+            results = self.entity_recog_mod.find_entity(example_text_textbox, entity_tag, IOB_Tag, patternstextboxValue)
             self.results.setText(results)
 
             # formating the text
-            formats = '{}"id": "{}", "label" : "{}", "pattern": {}{}'.format('{', entity_tag, IOB_Tag, str(self.rule_text_box.text()), '}')
+            formats = ""
+            i = 0
+            val = str(self.patterns_text_box.text())
+            val = val.split(';')
+            for tag in IOB_Tag:
+                formats += '{}"id": "{}", "label" : "{}", "pattern": {}{}'.format('{', entity_tag[i], tag, val[i], '}\n')
+                i+=1
             self.final_rule.setText(formats)
-
         except Exception as e:
             self.results.setText(str(e))
             self.final_rule.setText("")
