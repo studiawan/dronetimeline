@@ -18,25 +18,17 @@
 {"id" : "Advanced Programmable Interrupt Controller", "label" : "APIC", "pattern" : [{"TEXT" : "APIC"}]}
 {"id" : "Password Command", "label" : "PASSWD", "pattern" : [{"TEXT" : "passwd"}]}
 {"id" : "Bluetooth", "label" : "BLUTTH", "pattern" : [{"TEXT" : "Bluetooth"}, {"IS_PUNCT": true}]}
-
-
-
-
-
-
-
-
-
-
 {"id" : "Hash value", "label" : "HASH", "pattern" : [{"TEXT" : "hash"}, {"IS_PUNCT": true}, {}]}
-{"id" : "Path value", "label" : "PATH", "pattern" : [{"LOWER" : "path"}, {"IS_PUNCT": true}, {}]}
-{"id" : "null-terminated string", "label" : "REGSZ", "pattern" : [{"TEXT" : "REG_SZ"}]}
-{"id" : "32-bit number in little-endian format.", "label" : "REGDWORDLE", "pattern" : [{"TEXT" : "REG_DWORD_LE"}]}
-{"id" : "32-bit number in little-endian format.", "label" : "REGDWORDLE", "pattern" : [{"TEXT" : "REG_DWORD_LITTLE_ENDIAN"}]}
-{"id" : "sequence of null-terminated strings, terminated by an empty string", "label": "REGMULTISZ", "pattern": [{"TEXT" : "REG_MULTI_SZ"}]}
-{"id" : "Binary data in any form", "label" : "REGBINARY", "pattern" : [{"TEXT" : "REG_BINARY"}]}
-{"id" : "64-bit number", "label" : "REGQWORD", "pattern" : [{"TEXT" : "REG_QWORD"}]}
-{"id" : "No defined value", "label" : "REGNONE", "pattern" : [{"TEXT" : "REG_NONE"}]}
+{"id" : "Path value", "label" : "PATH", "pattern" : [{"LOWER" : "path"}, {"IS_PUNCT": true}]}
+{"id" : "null-terminated string", "label" : "REGSZ", "pattern" : [{"IS_PUNCT": true}, {"TEXT" : "REG_SZ"}, {"IS_PUNCT": true}]}
+{"id" : "Expanded null-terminated string", "label" : "EXPAREGSZ", "pattern" : [{"IS_PUNCT": true}, {"TEXT" : "REG_EXPAND_SZ"}, {"IS_PUNCT": true}]}
+{"id" : "A null-terminated Unicode", "label" : "REGLINK", "pattern" : [{"IS_PUNCT": true}, {"TEXT" : "REG_LINK"}, {"IS_PUNCT": true}]}
+{"id" : "32-bit number in little-endian format.", "label" : "REGDWORDLE", "pattern" : [{"IS_PUNCT": true}, {"TEXT" : "REG_DWORD_LE"}, {"IS_PUNCT": true}]}
+{"id" : "32-bit number in little-endian format.", "label" : "REGDWORDLE", "pattern" : [{"IS_PUNCT": true}, {"TEXT" : "REG_DWORD_LITTLE_ENDIAN"}, {"IS_PUNCT": true}]}
+{"id" : "sequence of null-terminated strings, terminated by an empty string", "label": "REGMULTISZ", "pattern": [{"IS_PUNCT": true}, {"TEXT" : "REG_MULTI_SZ"}, {"IS_PUNCT": true}]}
+{"id" : "Binary data in any form", "label" : "REGBINARY", "pattern" : [{"IS_PUNCT": true}, {"TEXT" : "REG_BINARY"}, {"IS_PUNCT": true}]}
+{"id" : "64-bit number", "label" : "REGQWORD", "pattern" : [{"IS_PUNCT": true}, {"TEXT" : "REG_QWORD"}, {"IS_PUNCT": true}]}
+{"id" : "No defined value", "label" : "REGNONE", "pattern" : [{"IS_PUNCT": true}, {"TEXT" : "REG_NONE"}, {"IS_PUNCT": true}]}
 {"id" : "Recently Used exe", "label" : "RECEXE", "pattern" : [{"TEXT" : "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\ComDlg32\\LastVisitedMRU"}]}
 {"id" : "Recently Files", "label" : "RECFILE", "pattern" : [{"TEXT" : "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\RecentDocs"}]}
 {"id" : "RUN Command entries", "label" : "RUNCMD", "pattern" : [{"TEXT" : "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\RunMRU"}]}
@@ -45,31 +37,86 @@
 {"id" : "Printers", "label" : "PRINTR", "pattern" : [{"TEXT" : "HKEY_LOCAL_MACHINE\\Printers"}]}
 {"id" : "Remote systems", "label" : "REMSYS", "pattern" : [{"TEXT" : "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\MountPoints2\\CPCVolume"}]}
 {"id" : "Startup auto run components", "label" : "MOUNDEV", "pattern" : [{"TEXT" : "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Run"}]}
-{"id" : "auto executed commands when cmd runs", "label" : "CMDPROC", "pattern" : [{"TEXT" : "HKEY_LOCAL_MACHINE\\Software\Microsoft\Command Processor"}]}
+{"id" : "auto executed commands when cmd runs", "label" : "CMDPROC", "pattern" : [{"TEXT" : "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Command Processor"}]}
 {"id" : "Windows Log on Activities", "label" : "WINLOGON", "pattern" : [{"TEXT" : "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon"}]}
 {"id" : "Microsoft Office", "label" : "MSOFFC", "pattern" : [{"TEXT" : {"REGEX" : "HKEY_CURRENT_USER\\\\Software\\\\Microsoft\\\\Office"}}]}
-
-
-
-
-
-
-
-
-
-
+{"id" : "Version", "label" : "VER", "pattern": [{"TEXT": "Version"}]}
+{"id" : "Content Type", "label" : "CONTYPE", "pattern": [{"TEXT": "Content"}, {"TEXT": "Type"}, {"IS_PUNCT": true}]}
+{"id" : "PerceivedType", "label" : "PERCDTYPE", "pattern": [{"TEXT": "PerceivedType"}, {"IS_PUNCT": true}]}
+{"id" : "Description", "label" : "DESC", "pattern": [{"TEXT": "Description"}, {"IS_PUNCT": true}]}
+{"id" : "Website", "label" : "WEBSITE", "pattern" : [{"LIKE_URL": true}] }
+{"id" : "E-mail", "label" : "EMAIL", "pattern" : [{"LIKE_EMAIL": true}]}
+{"id" : "IP Address", "label" : "IPADDR", "pattern": [{"TEXT": {"REGEX": "(?:[0-9]{1,3}\\.){3}[0-9]{1,3}\\S"}}]}
+{"id" : "Port", "label" : "PORT", "pattern" : [{"TEXT" : "port"}, {"IS_DIGIT" : true}]}
 {"id" : "HTTP Content Length", "label" : "HTTPCNTNLEN", "pattern" : [{"TEXT" : "Content"} , {"IS_PUNCT": true}, {"TEXT" : "Length"}, {"IS_PUNCT": true}, {"IS_DIGIT": true}]}
 {"id" : "HTTP Content Type", "label" : "HTTPCNTYPE", "pattern" : [{"TEXT" : "Content"} , {"IS_PUNCT": true}, {"TEXT" : "Type"}]}
 {"id" : "HTTP Javascript", "label" : "HTTPJS", "pattern" : [{"TEXT" : "application"} , {"IS_PUNCT": true}, {"TEXT" : "x"}, {"IS_PUNCT": true}, {"TEXT": "javascript"}]}
-{"id" : "HTTP Image", "label" : "HTTPIMG", "pattern" : [{"TEXT" : "image"} , {"IS_PUNCT": true}, {"TEXT" : "gif"}]}
+{"id" : "HTTP GIF", "label" : "HTTPGIF", "pattern" : [{"TEXT" : "image"} , {"IS_PUNCT": true}, {"TEXT" : "gif"}]}
+{"id" : "HTTP Image", "label" : "HTTPIMG", "pattern" : [{"TEXT" : "image"} , {"IS_PUNCT": true}, {"TEXT" : "jpeg"}]}
 {"id" : "HTTP HTML", "label" : "HTTPHTML", "pattern" : [{"TEXT" : "text"} , {"IS_PUNCT": true}, {"TEXT" : "html"}]}
 {"id" : "HTTP CSS", "label" : "HTTPCSS", "pattern" : [{"TEXT" : "text"} , {"IS_PUNCT": true}, {"TEXT" : "css"}]}
 {"id" : "User", "label" : "USER", "pattern" : [{"TEXT" : "~U"} , {"IS_PUNCT": true}, {}]}
 {"id" : "Cached file", "label" : "CACHFL", "pattern" : [{"TEXT" : "Cached"} , {"TEXT": "file"}, {"IS_PUNCT": true}]}
 {"id" : "Cached file size", "label" : "CACHSZ", "pattern" : [{"TEXT" : "Cached"} , {"TEXT": "file"}, {"TEXT": "size"}, {"IS_PUNCT": true}, {"IS_DIGIT": true}]}
-{"id" : "HTTP Hits", "label" : "HTTHITS", "pattern" : [{"TEXT" : "hits"}, {"IS_PUNCT": true}, {"IS_DIGIT": true}]}
-{"id" : "Website", "label" : "WEBSITE", "pattern" : [{"LIKE_URL": true}] }
-{"id" : "E-mail", "label" : "EMAIL", "pattern" : [{"LIKE_EMAIL": true}]}
-{"id" : "IP Address", "label" : "IPADDR", "pattern": [{"TEXT": {"REGEX": "(?:[0-9]{1,3}\\.){3}[0-9]{1,3}\\S"}}]}
-{"id" : "IP Address and Port", "label" : "IPPORT", "pattern": [{"TEXT": {"REGEX": "(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$"}}, {"IS_PUNCT": true}, {"IS_DIGIT" : true}]}
-{"id" : "Port", "label" : "PORT", "pattern" : [{"TEXT" : "port"}, {"IS_DIGIT" : true}]}
+{"id" : "HTTP Hits", "label" : "HTTPHIT", "pattern" : [{"TEXT" : "Number"}, {"TEXT" : "of"}, {"TEXT" : "hits"}, {"IS_PUNCT": true}, {"IS_DIGIT": true}]}
+{"id": "HTTP Continue", "label" : "HTTPCONT", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "100"}, {"TEXT" : "Continue"}]}
+{"id": "HTTP Switching Protocols", "label" : "HTTPSWIPROTC", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "101"}, {"TEXT" : "Switching"}, {"TEXT" : "Protocols"}]}
+{"id": "HTTP Processing", "label" : "HTTPPROCIN", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "102"}, {"TEXT" : "Processing"}]}
+{"id": "HTTP Early Hints", "label" : "HTTPEARHIN", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "102"}, {"TEXT" : "Early"}, {"TEXT" : "Hints"}]}
+{"id": "HTTP Ok", "label" : "HTTPOK", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "200"}, {"TEXT" : "OK"}]}
+{"id": "HTTP Created", "label" : "HTTPCREAT", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "201"}, {"TEXT" : "Created"}]}
+{"id": "HTTP Non-Authoritative Information", "label" : "HTTPNOAUTVINFO", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "203"}, {"TEXT" : "NON"}, {"IS_PUNCT" : true}, {"TEXT" : "Authoritative"}, {"TEXT" : "Information"}]}
+{"id": "HTTP No Content", "label" : "HTTPNOCONTEN", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "204"}, {"TEXT" : "No"}, {"TEXT" : "Content"}]}
+{"id": "HTTP Reset Content", "label" : "HTTPRSTCONTEN", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "205"}, {"TEXT" : "Reset"}, {"TEXT" : "Content"}]}
+{"id": "HTTP Partial Content", "label" : "HTTPARTCONTEN", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "206"}, {"TEXT" : "Partial"}, {"TEXT" : "Content"}]}
+{"id": "HTTP Multi-Status", "label" : "HTTMULTSTAT", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "207"}, {"TEXT" : "MULTI"}, {"IS_PUNCT" : true}, {"TEXT" : "Status"}]}
+{"id": "HTTP Already Reported", "label" : "HTTPALRYRPTD", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "208"}, {"TEXT" : "Already"}, {"TEXT" : "Reported"}]}
+{"id": "HTTP IM Used", "label" : "HTTPIMUSD", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "226"}, {"TEXT" : "IM"}, {"TEXT" : "Used"}]}
+{"id": "HTTP Multiple Choices", "label" : "HTTPIMULTCHOC", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "300"}, {"TEXT" : "Multiple"}, {"TEXT" : "Choices"}]}
+{"id": "HTTP Moved Permanently", "label" : "HTTPIMOVDPERM", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "301"}, {"TEXT" : "Moved"}, {"TEXT" : "Permanently"}]}
+{"id": "HTTP Found", "label" : "HTTPFOUND", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "302"}, {"TEXT" : "Found"}]}
+{"id": "HTTP See Other", "label" : "HTTPSEEOTHR", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "303"}, {"TEXT" : "See"}, {"TEXT" : "Other"}]}
+{"id": "HTTP Not Modified", "label" : "HTTPNOTMOD", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "304"}, {"TEXT" : "Not"}, {"TEXT" : "Modified"}]}
+{"id": "HTTP Use Proxy", "label" : "HTTPUSEPROX", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "305"}, {"TEXT" : "Use"}, {"TEXT" : "Proxy"}]}
+{"id": "HTTP Switch Proxy", "label" : "HTTPSWTCPROX", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "306"}, {"TEXT" : "Switch"}, {"TEXT" : "Proxy"}]}
+{"id": "HTTP Temporary Redirect", "label" : "HTTPTEMPREDR", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "307"}, {"TEXT" : "Temporary"}, {"TEXT" : "Redirect"}]}
+{"id": "HTTP Permanent Redirect", "label" : "HTTPPERMREDR", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "308"}, {"TEXT" : "Permanent"}, {"TEXT" : "Redirect"}]}
+{"id": "HTTP Bad Request", "label" : "HTTPBADREQ", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "400"}, {"TEXT" : "Bad"}, {"TEXT" : "Request"}]}
+{"id": "HTTP Unauthorized", "label" : "HTTPUNAUT", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "401"}, {"TEXT" : "Unauthorized"}]}
+{"id": "HTTP Payment Required", "label" : "HTTPPYMTREQRD", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "402"}, {"TEXT" : "Payment"}, {"TEXT" : "Required"}]}
+{"id": "HTTP Forbidden", "label" : "HTTPFORBD", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "403"}, {"TEXT" : "Forbidden"}]}
+{"id": "HTTP Not Found", "label" : "HTTPNOTFOUN", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "404"}, {"TEXT" : "Not"}, {"TEXT" : "Found"}]}
+{"id": "HTTP Method Not Allowed", "label" : "HTTPMETNOTALWD", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "405"},{"TEXT" : "Method"}, {"TEXT" : "Not"}, {"TEXT" : "Allowed"}]}
+{"id": "HTTP Not Acceptable", "label" : "HTTPNOTACC", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "406"}, {"TEXT" : "Not"}, {"TEXT" : "Acceptable"}]}
+{"id": "HTTP Proxy Authentication Required", "label" : "HTTPPROXAUTREQRD", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "407"},{"TEXT" : "Proxy"}, {"TEXT" : "Authentication"}, {"TEXT" : "Required"}]}
+{"id": "HTTP Request Timeout", "label" : "HTTPPRTO", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "408"},{"TEXT" : "Request"}, {"TEXT" : "Timeout"}]}
+{"id": "HTTP Conflict", "label" : "HTTPCONFL", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "409"}, {"TEXT" : "Conflict"}]}
+{"id": "HTTP Gone", "label" : "HTTPGONE", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "410"}, {"TEXT" : "Gone"}]}
+{"id": "HTTP Length Required", "label" : "HTTPLENREQRD", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "411"}, {"TEXT" : "Length"}, {"TEXT" : "Required"}]}
+{"id": "HTTP Precondition Failed", "label" : "HTTPPRECOFAIL", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "412"}, {"TEXT" : "Precondition"}, {"TEXT" : "Failed"}]}
+{"id": "HTTP Payload Too Large", "label" : "HTTPPYTOOLRG", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "413"}, {"TEXT" : "Payload"}, {"TEXT" : "Too"}, {"TEXT" : "Large"}]}
+{"id": "HTTP URI Too Long", "label" : "HTTPURITOOLNG", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "414"}, {"TEXT" : "URI"}, {"TEXT" : "Too"}, {"TEXT" : "Long"}]}
+{"id": "HTTP Unsupported Media Type", "label" : "HTTPUNSUPMEDTYPE", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "415"}, {"TEXT" : "Unsupported"}, {"TEXT" : "Media"}, {"TEXT" : "Type"}]}
+{"id": "HTTP Range Not Satisfiable", "label" : "HTTPRNGNOTSATBL", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "416"}, {"TEXT" : "Range"}, {"TEXT" : "Not"}, {"TEXT" : "Satisfiable"}]}
+{"id": "HTTP Expectation Not Failed", "label" : "HTTPEXPCFAIL", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "417"}, {"TEXT" : "Expectation"}, {"TEXT" : "Failed"}]}
+{"id": "HTTP Misdirected Request", "label" : "HTTPMISDIRREQ", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "421"}, {"TEXT" : "Misdirected"}, {"TEXT" : "Request"}]}
+{"id": "HTTP Unprocessable Entity", "label" : "HTTPUNPROCENT", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "422"}, {"TEXT" : "Unprocessable"}, {"TEXT" : "Entity"}]}
+{"id": "HTTP Locked Entity", "label" : "HTTPLOCKD", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "423"}, {"TEXT" : "Locked"}]}
+{"id": "HTTP Failed Dependency", "label" : "HTTPFAILDEPNC", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "424"}, {"TEXT" : "Failed"}, {"TEXT" : "Dependency"}]}
+{"id": "HTTP Too Early", "label" : "HTTPTOOEARLY", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "425"}, {"TEXT" : "Too"}, {"TEXT" : "Early"}]}
+{"id": "HTTP Upgrade Required", "label" : "HTTPUPGREQRD", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "426"}, {"TEXT" : "Upgrade"}, {"TEXT" : "Required"}]}
+{"id": "HTTP Precondition Required", "label" : "HTTPPRECOREQRD", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "428"}, {"TEXT" : "Precondition"}, {"TEXT" : "Required"}]}
+{"id": "HTTP Too Many Request", "label" : "HTTPTOOMANYREQ", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "429"}, {"TEXT" : "Too"}, {"TEXT" : "Many"}, {"TEXT" : "Request"}]}
+{"id": "HTTP Request Header Fields Too Large", "label" : "HTTPREGHDRTOOLRG", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "430"}, {"TEXT" : "Request"}, {"TEXT" : "Header"}, {"TEXT" : "Fields"}, {"TEXT" : "Too"}, {"TEXT" : "Large"}]}
+{"id": "HTTP Unavailable For Legal Reason", "label" : "HTTPUNAVBLILLEGAL", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "451"}, {"TEXT" : "Unavailable"}, {"TEXT" : "For"}, {"TEXT" : "Legal"}, {"TEXT" : "Reason"}]}
+{"id": "HTTP Internal Server Error", "label" : "HTTPINTSERVERR", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "500"}, {"TEXT" : "Internal"}, {"TEXT" : "Server"}, {"TEXT" : "Error"}]}
+{"id": "HTTP Not Implemented", "label" : "HTTPNOTIMPLTD", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "501"}, {"TEXT" : "Not"}, {"TEXT" : "Implemented"}]}
+{"id": "HTTP Bad Gateway", "label" : "HTTPBADGTWY", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "502"}, {"TEXT" : "Bad"}, {"TEXT" : "Gateway"}]}
+{"id": "HTTP Service Unavailable", "label" : "HTTPSERVCUNAVBL", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "503"}, {"TEXT" : "Service"}, {"TEXT" : "Unavailable"}]}
+{"id": "HTTP Gateway Timeout", "label" : "HTTPGTO", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "504"}, {"TEXT" : "Gateway"}, {"TEXT" : "Timeout"}]}
+{"id": "HTTP Version Not Supported", "label" : "HTTPVERNOTSUPP", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "505"},{"TEXT" : "HTTP"}, {"TEXT" : "Version"}, {"TEXT" : "Not"}, {"TEXT" : "Supported"}]}
+{"id": "HTTP Variant Also Negotiates", "label" : "HTTPVARNGO", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "506"}, {"TEXT" : "Variant"}, {"TEXT" : "Also"}, {"TEXT" : "Negotiates"}]}
+{"id": "HTTP Insufficient Storage", "label" : "HTTPINSFSTORG", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "507"}, {"TEXT" : "Insufficient"}, {"TEXT" : "Storage"}]}
+{"id": "HTTP Loop Detected", "label" : "HTTPLOOPDETC", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "508"}, {"TEXT" : "Loop"}, {"TEXT" : "Detected"}]}
+{"id": "HTTP Not Extended", "label" : "HTTPNOTEXTN", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "510"}, {"TEXT" : "Not"}, {"TEXT" : "Extended"}]}
+{"id": "HTTP Network Authentication Required", "label" : "HTTPNETAUTREQRD", "pattern": [{"TEXT" : "HTTP/1.1"}, {"TEXT" : "511"}, {"TEXT" : "Network"}, {"TEXT" : "Authentication"}, {"TEXT" : "Required"}]}
