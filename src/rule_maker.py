@@ -51,8 +51,10 @@ class EntityRecognitionModified:
             print(entity)
             
         for ent in doc.ents:
+            
             matched_string = ent.text #string that matched the rule
             string_id = ent.ent_id_ #id of the entity based on the rules created
+            if(string_id==''): continue
             matched_details = self.skadi_string_slicer(doc, ent.start, ent.end, matched_string, string_id)
             list_of_matches.append(matched_details)
 

@@ -1,1 +1,1 @@
-{"id" : "Root User", "label" : "ROOT", "pattern" : [{"TEXT": "root"}]}
+{"id" : "IP Address and Port", "label" : "IPPORT", "pattern": [{"ENT_TYPE": "IPADDR", {"IS_PUNCT": true}, {"IS_DIGIT" : true}]}
