@@ -10,7 +10,9 @@ time_start = time.time()
 class EntityRecognition:
     def __init__(self):
         self.nlp = English()
+        
         self.ruler = self.nlp.add_pipe("entity_ruler", config={"overwrite_ents": "true"}).from_disk("src/rules.jsonl")
+        self.ruler_entity_dependend = self.nlp.add_pipe("entity_ruler", name = "file_ruler", config={"overwrite_ents": "true"}).from_disk("src/file_rules.jsonl")
         self.ruler_entity_dependend = self.nlp.add_pipe("entity_ruler", name = "entity_dependend_ruler", config={"overwrite_ents": "true"}).from_disk("src/entity_dependend_rules.jsonl")
 
     # Function to give rich text anotation to marking entities

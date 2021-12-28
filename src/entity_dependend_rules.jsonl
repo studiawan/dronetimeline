@@ -1,7 +1,9 @@
-{"id" : "IP Address and Port", "label" : "IPPORT", "pattern": [{"ENT_TYPE": "IPADDR"}, {"IS_PUNCT": true}, {"IS_DIGIT" : true}]}
-{"id" : "Version", "label" : "VER", "pattern": [{"ENT_TYPE": "VER", "OP" : "+"}, {"IS_PUNCT": true}, {"ENT_TYPE": "REGSZ", "OP" : "+"}, {"IS_DIGIT" : true}]}
-{"id" : "Version", "label" : "VER", "pattern": [{"ENT_TYPE": "VER", "OP" : "+"}, {"IS_PUNCT": true}, {"ENT_TYPE": "REGDWORDLE", "OP" : "+"}, {"IS_DIGIT" : true}]}
-{"id" : "Content Type", "label" : "CONTYPE", "pattern":  [{"ENT_TYPE": "CONTYPE", "OP" : "+"}, {"ENT_TYPE": "REGSZ", "OP" : "+"}, {}]}
-{"id" : "PerceivedType", "label" : "PERCDTYPE", "pattern": [{"ENT_TYPE": "PERCDTYPE", "OP" : "+"}, {"ENT_TYPE": "REGSZ", "OP" : "+"}, {}]}
-{"id" : "Description", "label" : "DESC", "pattern": [{"ENT_TYPE": "DESC", "OP" : "+"}, {"ENT_TYPE": "REGSZ", "OP" : "+"}, {}]}
-{"id" : "Path", "label" : "PATH", "pattern" : [{"ENT_TYPE" : "PATH", "OP" : "+"}, {"ENT_TYPE": "REGSZ", "OP" : "+"}, {}]}
+{"id" : "IP Address and Port", "label" : "IPPORT", "pattern": [{"ENT_TYPE": "IPADDR"}, {"IS_PUNCT": true}, {"IS_DIGIT": true}]}
+{"id" : "Version", "label" : "VER", "pattern": [{"ENT_TYPE": "VER", "OP" : "+"}, {"IS_PUNCT": true}, {"ENT_TYPE": "REGSZ", "OP" : "+"}]}
+{"id" : "Version", "label" : "VER", "pattern": [{"ENT_TYPE": "VER", "OP" : "+"}, {"IS_PUNCT": true}, {"ENT_TYPE": "REGDWORDLE", "OP" : "+"}]}
+{"id" : "Content Type", "label" : "CONTYPE", "pattern":  [{"ENT_TYPE": "CONTYPE", "OP" : "+"}, {"ENT_TYPE": "REGSZ", "OP" : "+"}]}
+{"id" : "PerceivedType", "label" : "PERCDTYPE", "pattern": [{"ENT_TYPE": "PERCDTYPE", "OP" : "+"}, {"ENT_TYPE": "REGSZ", "OP" : "+"}]}
+{"id" : "Description", "label" : "DESC", "pattern": [{"ENT_TYPE": "DESC", "OP" : "+"}, {"ENT_TYPE": "REGSZ", "OP" : "+"}]}
+{"id" : "Path", "label" : "PATH", "pattern" : [{"ENT_TYPE" : "PATH", "OP" : "+"}, {"ENT_TYPE": "REGSZ", "OP" : "+"}]}
+{"id" : "Path", "label" : "PATH", "pattern" : [{"ENT_TYPE" : "PATH", "OP" : "+"}, {"ENT_TYPE": "REGEXPANDSZ", "OP" : "+"}]}
+{"id" : "Portable Executable Type", "label" : "PETYPE", "pattern": [{"ENT_TYPE": "PE", "OP" : "+"}, {"ENT_TYPE": "TYPE", "OP" : "+"}]}
