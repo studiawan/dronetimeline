@@ -1,3 +1,5 @@
+{"id" : "Mobile Phone Video", "label" : "3GP", "pattern" : [{"TEXT" : {"REGEX": "\\.3gp$"}}]}
+{"id" : "Compressed Archive File", "label" : "7Z", "pattern" : [{"TEXT" : {"REGEX": "\\.7z$"}}]}
 {"id" : "archive file", "label" : "A", "pattern" : [{"TEXT" : {"REGEX": "\\.a$"}}]}
 {"id" : "Microsoft Access Database", "label" : "ACCDB", "pattern" : [{"TEXT" : {"REGEX": "\\.accdb$"}}]}
 {"id" : "Microsoft Access Data Type Template", "label" : "ACCFT", "pattern" : [{"TEXT" : {"REGEX": "\\.accft$"}}]}
@@ -378,7 +380,7 @@
 {"id" : "Gerätedatentransfer, an xDT application", "label" : "GDT", "pattern" : [{"TEXT" : {"REGEX": "\\.gdt$"}}]}
 {"id" : "GEDCOM", "label" : "GED", "pattern" : [{"TEXT" : {"REGEX": "\\.ged$"}}]}
 {"id" : "GeoGebra File", "label" : "GGB", "pattern" : [{"TEXT" : {"REGEX": "\\.ggb$"}}]}
-{"id" : "Compuserves' Graphics Interchange Format (bitmapped graphics)", "label" : "GIF", "pattern" : [{"TEXT" : {"REGEX": "\\.gif$"}}]}
+{"id" : "Graphics Interchange Format", "label" : "GIF", "pattern" : [{"TEXT" : {"REGEX": "\\.gif$"}}]}
 {"id" : "Gemtext markup language", "label" : "GMI", "pattern" : [{"TEXT" : {"REGEX": "\\.gmi$"}}]}
 {"id" : "GameMaker Project File", "label" : "GMK", "pattern" : [{"TEXT" : {"REGEX": "\\.gmk$"}}]}
 {"id" : "Geography Markup Language File", "label" : "GML", "pattern" : [{"TEXT" : {"REGEX": "\\.gml$"}}]}
@@ -465,6 +467,7 @@
 {"id" : "MEX file (executable command)", "label" : "MEX", "pattern" : [{"TEXT" : {"REGEX": "\\.mex$"}}]}
 {"id" : "Materials and Geometry Format", "label" : "MGF", "pattern" : [{"TEXT" : {"REGEX": "\\.mgf$"}}]}
 {"id" : "Standard MIDI file", "label" : "MID", "pattern" : [{"TEXT" : {"REGEX": "\\.mid$"}}]}
+{"id" : "MKV Video file", "label" : "MP4", "pattern" : [{"TEXT" : {"REGEX": "\\.mkv$"}}]}
 {"id" : "Source code", "label" : "MM", "pattern" : [{"TEXT" : {"REGEX": "\\.mm$"}}]}
 {"id" : "MediaMonkey Device Settings", "label" : "MMDC", "pattern" : [{"TEXT" : {"REGEX": "\\.mmdc$"}}]}
 {"id" : "MediaMonkey Add-on Installation Package", "label" : "MMIP", "pattern" : [{"TEXT" : {"REGEX": "\\.mmip$"}}]}
@@ -760,6 +763,7 @@
 {"id" : "Theme Template File", "label" : "TT", "pattern" : [{"TEXT" : {"REGEX": "\\.tt$"}}]}
 {"id" : "TrueType Font file", "label" : "TTF", "pattern" : [{"TEXT" : {"REGEX": "\\.ttf$"}}]}
 {"id" : "Truevision TGA file", "label" : "TGA", "pattern" : [{"TEXT" : {"REGEX": "\\.tga$"}}]}
+{"id" : "Text File", "label" : "TXT", "pattern" : [{"TEXT" : {"REGEX": "\\.txt$"}}]}
 {"id" : "Espire source code file", "label" : "UI", "pattern" : [{"TEXT" : {"REGEX": "\\.ui$"}}]}
 {"id" : "Qt Designer's UI File", "label" : "UI", "pattern" : [{"TEXT" : {"REGEX": "\\.ui$"}}]}
 {"id" : "Umple UML Programming Language Format", "label" : "UMP", "pattern" : [{"TEXT" : {"REGEX": "\\.ump$"}}]}
