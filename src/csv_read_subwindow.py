@@ -3,10 +3,10 @@ from PyQt5.QtWidgets import (
     QMdiSubWindow,
     QProgressBar,
 )
-import sqlite3, time, os, csv, sys
+
+import sqlite3, time, os, csv
 from EntityRecognition import EntityRecognition
 
-# csv.field_size_limit(sys.maxsize)
 
 class CSVReadSubWindow(QMdiSubWindow):
     def __init__(self, csv_file, table_name, column_names, database_path):
@@ -20,7 +20,7 @@ class CSVReadSubWindow(QMdiSubWindow):
     
     # Custome function using sqlite3 to import csv  
     def insert_csv_to_db(self, parent, csv_file, table_name, column_names, database_path):
-        
+       
         write = open (table_name + '_IOB.txt', 'w')
         time_start = time.time()
         con = sqlite3.connect(f"{os.path.basename(database_path)}{'.db'}")
@@ -34,7 +34,6 @@ class CSVReadSubWindow(QMdiSubWindow):
         n = 1 # number of lines in csv
         datas = [] # list of datas that will go into sqlite
         entity_recogntion = EntityRecognition()
-        
         with open(csv_file) as f:
             n += sum(1 for line in f)
 
@@ -71,7 +70,6 @@ class CSVReadSubWindow(QMdiSubWindow):
 
         write.close()
 
-
         column_string = ''
         comma = ', '
         column_names_len = len(column_names)
@@ -83,6 +81,7 @@ class CSVReadSubWindow(QMdiSubWindow):
             column_string += f"{column_name}{comma}"
         column_string = f"{'('}{column_string}{')'}{' VALUES '}"
         self.progress.setValue(95)
+        
         # values
         comma = ', '
         values_string = ''

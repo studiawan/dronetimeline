@@ -1,7 +1,6 @@
 import os
 import csv
 import sys
-# csv.field_size_limit(sys.maxsize)
 import threading
 from PyQt5.QtSql import QSqlDatabase, QSqlQuery
 from EntityRecognition import EntityRecognition
@@ -16,6 +15,7 @@ class QtDatabase(object):
         self.database_name = f"{os.path.basename(database_path)}{'.db'}"
         self.connection = QSqlDatabase.addDatabase('QSQLITE')
         self.connection.setDatabaseName(self.database_name)
+        self.connection.open()
     # @staticmethod
     def create_table(self, table_name, column_names):
         if not self.connection.open():
