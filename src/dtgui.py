@@ -21,7 +21,7 @@ from functools import partial
 
 class DtGui(QMainWindow):
 
-    ansel_signal_receiver = pyqtSignal(str, list)
+    signal_receiver = pyqtSignal(str, list)
 
     def __init__(self):
         super().__init__()
@@ -35,7 +35,7 @@ class DtGui(QMainWindow):
         self.merged_timeline_table_name = 'mergedtimeline'
         self.saved_timeline = self.set_saved_timeline()
         self.init_ui()
-        self.ansel_signal_receiver.connect(self.timeline_subwindow_trigger)
+        self.signal_receiver.connect(self.timeline_subwindow_trigger)
 
     def set_saved_timeline(self):
          # read json of Saved Timelines

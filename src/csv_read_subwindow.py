@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import (
 import sqlite3, time, os, csv, sys
 from EntityRecognition import EntityRecognition
 
-csv.field_size_limit(sys.maxsize)
+# csv.field_size_limit(sys.maxsize)
 
 class CSVReadSubWindow(QMdiSubWindow):
     def __init__(self, csv_file, table_name, column_names, database_path):
@@ -61,7 +61,7 @@ class CSVReadSubWindow(QMdiSubWindow):
                 datas.append((row))
 
                 # IOB.txt Generator
-                hasil = entity_recogntion.saria_IOB_formater(doc, entities)
+                hasil = entity_recogntion.IOB_formater(doc, entities)
                 for x in hasil :
                     write.write(str(x[0]) + " " + str(x[1]) + '\n')
                 write.write('\n')
@@ -101,7 +101,7 @@ class CSVReadSubWindow(QMdiSubWindow):
         print("finished inserting from csv")
         self.progress.setValue(100)
 
-        parent.ansel_signal_receiver.emit(table_name, column_names)
+        parent.signal_receiver.emit(table_name, column_names)
 
     def show_ui(self):
         # set title and geometry

@@ -17,7 +17,7 @@ class EntityRecognitionModified:
         return 
 
     # Function to give rich text anotation to marking entities
-    def skadi_string_slicer(self,doc, start, end,matched_string,string_id):
+    def string_slicer(self,doc, start, end,matched_string,string_id):
         strings = doc.text
         start_char_index = doc[start:end].start_char
         end_char_index = doc[start:end].end_char
@@ -55,7 +55,7 @@ class EntityRecognitionModified:
             matched_string = ent.text #string that matched the rule
             string_id = ent.ent_id_ #id of the entity based on the rules created
             if(string_id==''): continue
-            matched_details = self.skadi_string_slicer(doc, ent.start, ent.end, matched_string, string_id)
+            matched_details = self.string_slicer(doc, ent.start, ent.end, matched_string, string_id)
             list_of_matches.append(matched_details)
 
         # assuming spaCy finds entity from start of the string to the end of the string,

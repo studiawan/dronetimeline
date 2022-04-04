@@ -1,7 +1,7 @@
 import os
 import csv
 import sys
-csv.field_size_limit(sys.maxsize)
+# csv.field_size_limit(sys.maxsize)
 import threading
 from PyQt5.QtSql import QSqlDatabase, QSqlQuery
 from EntityRecognition import EntityRecognition

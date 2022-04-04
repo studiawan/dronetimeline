@@ -16,7 +16,7 @@ class EntityRecognition:
         self.ruler_entity_dependend = self.nlp.add_pipe("entity_ruler", name = "entity_dependend_ruler", config={"overwrite_ents": "true"}).from_disk("src/entity_dependend_rules.jsonl")
 
     # Function to give rich text anotation to marking entities
-    def skadi_string_slicer(self,doc, start, end,matched_string,string_id):
+    def string_slicer(self,doc, start, end,matched_string,string_id):
         strings = doc.text
         start_char_index = doc[start:end].start_char
         end_char_index = doc[start:end].end_char
@@ -37,7 +37,7 @@ class EntityRecognition:
             matched_string = ent.text #string that matched the rule
             string_id = ent.ent_id_ #id of the entity based on the rules created
 
-            matched_details = self.skadi_string_slicer(doc, ent.start, ent.end, matched_string, string_id)
+            matched_details = self.string_slicer(doc, ent.start, ent.end, matched_string, string_id)
             list_of_matches.append(matched_details)
             entities.append(ent)
 
@@ -52,7 +52,7 @@ class EntityRecognition:
 
         return string, doc, entities
 
-    def saria_IOB_formater(self, doc, entities):
+    def IOB_formater(self, doc, entities):
         array = []
         for x in doc:
             array.append(('O', x))
