@@ -130,5 +130,12 @@ dmypy.json
 
 # PyCharm
 .idea
+
+
+
 .vscode/launch.json
+*.db
+*.csv
 timelines.json
+*IOB.txt
+/timelines

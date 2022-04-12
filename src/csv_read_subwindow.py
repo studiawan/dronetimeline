@@ -3,7 +3,10 @@ from PyQt5.QtWidgets import (
     QMdiSubWindow,
     QProgressBar,
 )
+
 import sqlite3, time, os, csv
+from EntityRecognition import EntityRecognition
+
 
 class CSVReadSubWindow(QMdiSubWindow):
     def __init__(self, csv_file, table_name, column_names, database_path):
@@ -17,8 +20,8 @@ class CSVReadSubWindow(QMdiSubWindow):
     
     # Custome function using sqlite3 to import csv  
     def insert_csv_to_db(self, parent, csv_file, table_name, column_names, database_path):
-        
        
+        write = open (table_name + '_IOB.txt', 'w')
         time_start = time.time()
         con = sqlite3.connect(f"{os.path.basename(database_path)}{'.db'}")
         cur = con.cursor()
@@ -30,6 +33,7 @@ class CSVReadSubWindow(QMdiSubWindow):
 
         n = 1 # number of lines in csv
         datas = [] # list of datas that will go into sqlite
+        entity_recogntion = EntityRecognition()
         with open(csv_file) as f:
             n += sum(1 for line in f)
 
@@ -44,10 +48,27 @@ class CSVReadSubWindow(QMdiSubWindow):
                 self.completed += 1/n
                 self.progress.setValue(self.completed*100) 
 
+
             for row in csv_reader:
+                # find message and event column index
+                index_message = column_names.index('message')
+                index_event = column_names.index('event')
+
+                # Do entity recognition
+                row[index_event], doc, entities = entity_recogntion.find_entity(row[index_event])
+                row[index_message], doc , entities = entity_recogntion.find_entity(row[index_message])
                 datas.append((row))
+
+                # IOB.txt Generator
+                hasil = entity_recogntion.IOB_formater(doc, entities)
+                for x in hasil :
+                    write.write(str(x[0]) + " " + str(x[1]) + '\n')
+                write.write('\n')
+
                 self.completed += 1/n
                 self.progress.setValue(self.completed*100)
+
+        write.close()
 
         column_string = ''
         comma = ', '
@@ -79,7 +100,7 @@ class CSVReadSubWindow(QMdiSubWindow):
         print("finished inserting from csv")
         self.progress.setValue(100)
 
-        parent.ansel_signal_receiver.emit(table_name)
+        parent.signal_receiver.emit(table_name, column_names)
 
     def show_ui(self):
         # set title and geometry

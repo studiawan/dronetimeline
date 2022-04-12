@@ -12,7 +12,7 @@ from PyQt5.QtSql import QSqlTableModel
 from PyQt5 import QtGui
 
 class TimelineSubWindow(QMdiSubWindow):
-    def __init__(self, table_name, db_connection):
+    def __init__(self, table_name, column_names , db_connection):
         super().__init__()
         self.table_name = table_name
         self.column_names = self.set_column_names(db_connection)
@@ -44,7 +44,7 @@ class TimelineSubWindow(QMdiSubWindow):
 
         # define table widget
         table_label = QLabel()
-        table_label.setText('Merged timeline:')
+        table_label.setText('Timeline:')
         table_widget = QTableView()
         table_widget.setModel(self.table_model)
         
@@ -87,5 +87,6 @@ class TimelineSubWindow(QMdiSubWindow):
         record = dbconnection.record(self.table_name)
         for i in range(0, record.count()):
             column_names.append(record.fieldName(i))
+
 
         return column_names
