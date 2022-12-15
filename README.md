@@ -10,10 +10,18 @@ DroneTimeline is a forensic timeline analysis tool for drone.
 
 - Clone the repository
   
-  `git clone https://github.com/studiawan/dronetimeline.git`
+  ```bash
+  git clone https://github.com/studiawan/dronetimeline.git
+  ```
+- Install the requirements
+  ```bash
+  pip install -r requirements.txt
+  ```
 - Run the DroneTimeline main graphical user interface
-  
-  `python src/dtgui.py`
+  ```bash
+  python src/dtgui.py
+  ```
+
 - The order of the run: select case directory, import timeline, merge the timelines, and show merged timeline.
 - To select case directory, choose *File* &#8594; *Select Case Directory*
 - To import timeline, click *File* &#8594; *Import Timeline*

@@ -1,0 +1,6 @@
+spacy
+PyQt5
+src/plugins/DtGUI
+src/plugins/MergeTimelineSubWindow
+src/plugins/QtDatabase
+src/plugins/TimelineSubWindow
