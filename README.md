@@ -5,6 +5,7 @@ DroneTimeline is a forensic timeline analysis tool for drone.
 
 - Python 3.8
 - PyQt5
+- pluggy 1.0.0
 
 ## How to run
 
