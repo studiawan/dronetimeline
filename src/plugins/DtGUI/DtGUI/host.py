@@ -38,27 +38,6 @@ class DtGUI(QMainWindow):
     def init_menu(self):
         return self.pm.hook.init_menu(DtGUIObj=self)
 
-    def newcase_action(self):
-        return self.pm.hook.newcase_action(DtGUIObj=self)
-    
-    def import_action(self):
-        return self.pm.hook.import_action(DtGUIObj=self)
-    
-    def exit_action(self):
-        return self.pm.hook.exit_action(DtGUIObj=self)
-    
-    def merge_action(self):
-        return self.pm.hook.merge_action(DtGUIObj=self)
-    
-    def show_merged_timeline_action(self):
-        return self.pm.hook.show_merged_timeline_action(DtGUIObj=self)
-    
-    def open_directory_dialog(self):
-        return self.pm.hook.open_directory_dialog(DtGUIObj=self)
-    
-    def open_file_dialog(self):
-        return self.pm.hook.open_file_dialog(DtGUIObj=self)
-    
     def timeline_subwindow_trigger(self, table_name, column_names):
         return self.pm.hook.timeline_subwindow_trigger(DtGUIObj=self, table_name=table_name, column_names=column_names)
     
