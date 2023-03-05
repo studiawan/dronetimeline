@@ -1,14 +1,8 @@
 import sys
 from PyQt5.QtWidgets import (
-    QMainWindow,
-    QAction,
-    qApp,
     QApplication,
-    QFileDialog,
-    QMessageBox,
-    QMdiArea
 )
-from PyQt5 import QtGui
+
 from DtGUI import host as DtGUI_Pluggin
 
 def main():
