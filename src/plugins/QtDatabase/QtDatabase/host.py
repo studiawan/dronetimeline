@@ -11,7 +11,7 @@ class QtDatabase:
         self.pm.load_setuptools_entrypoints("QtDatabase")
         self.pm.register(lib)
 
-        self.database_name = f"{os.path.basename(database_path)}{'.db'}"
+        self.database_name = f"{database_path}{'.db'}"
         self.connection = QSqlDatabase.addDatabase('QSQLITE')
         self.connection.setDatabaseName(self.database_name)
 

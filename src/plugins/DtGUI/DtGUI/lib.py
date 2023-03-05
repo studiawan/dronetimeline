@@ -93,7 +93,7 @@ def open_directory_dialog(DtGUIObj):
     # get database name and database directory
     database_name = os.path.basename(directory)
     if database_name != '' and directory != '':
-        DtGUIObj.database = QtDatabase_Plugin.QtDatabase(directory)
+        DtGUIObj.database = QtDatabase_Plugin.QtDatabase(os.path.join(directory, database_name))
 
         # case name == database name
         DtGUIObj.case_name = database_name
