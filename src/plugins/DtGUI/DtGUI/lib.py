@@ -29,110 +29,98 @@ def init_menu(DtGUIObj):
 
     # File menu
     file_menu = menubar.addMenu('&File')
-    file_menu.addAction(DtGUIObj.newcase_action())
-    file_menu.addAction(DtGUIObj.import_action())
-    file_menu.addAction(DtGUIObj.exit_action())
 
-    # Timeline menu
-    timeline_menu = menubar.addMenu('&Timeline')
-    timeline_menu.addAction(DtGUIObj.merge_action())
-    timeline_menu.addAction(DtGUIObj.show_merged_timeline_action())
-
-@DtGUI.hookimpl
-def newcase_action(DtGUIObj):
+    # ================== Select Case Directory ==================
+    # Create new case action
     newcase_act = QAction('&Select Case Directory', DtGUIObj)
     newcase_act.setShortcut('Ctrl+N')
     newcase_act.setStatusTip('Select case directory')
-    newcase_act.triggered.connect(DtGUIObj.open_directory_dialog)
 
-    return newcase_act
+    # Create trigger for newcase_act
+    def open_directory_dialog():
+        directory = QFileDialog.getExistingDirectory(DtGUIObj, "Select Directory")
 
-@DtGUI.hookimpl
-def import_action(DtGUIObj):
+        # get database name and database directory
+        database_name = os.path.basename(directory)
+        if database_name != '' and directory != '':
+            DtGUIObj.database = QtDatabase_Plugin.QtDatabase(os.path.join(directory, database_name))
+
+            # case name == database name
+            DtGUIObj.case_name = database_name
+            DtGUIObj.case_directory = directory
+
+            message = f'{"Case directory is selected: "}{directory}'
+            DtGUIObj.show_info_messagebox(message)
+
+    # Register trigger for newcase_act
+    newcase_act.triggered.connect(open_directory_dialog)
+    # Add newcase_act to file_menu
+    file_menu.addAction(newcase_act)
+
+
+    # ================== Import Timeline ==================
+    # Create import action
     import_act = QAction('&Import Timeline', DtGUIObj)
     import_act.setShortcut('Ctrl+I')
     import_act.setStatusTip('Import timeline')
-    import_act.triggered.connect(DtGUIObj.open_file_dialog)
 
-    return import_act
+    # Create trigger for import_act
+    def open_file_dialog():
+        if DtGUIObj.case_name == '':
+            DtGUIObj.show_info_messagebox("Please select case directory before importing a timeline.")
 
-@DtGUI.hookimpl
-def exit_action(DtGUIObj):
+        else:
+            options = QFileDialog.Options()
+            options |= QFileDialog.DontUseNativeDialog
+            file_name, _ = QFileDialog.getOpenFileName(DtGUIObj, "Open file", "", "All Files (*)", options=options)
+            if file_name:
+                # insert timeline to database
+                table_name = os.path.basename(file_name)
+                table_name = os.path.splitext(table_name)[0]
+
+                # make sure table name is alphanumeric
+                table_name = re.sub('[\W_]+', '', table_name)
+
+                # insert csv file to database
+                column_names = DtGUIObj.database.insert_csv(table_name, file_name)
+
+                # save timeline and its column names
+                DtGUIObj.timeline_columns[table_name] = column_names
+
+                # show timeline in an MDI window
+                DtGUIObj.timeline_subwindow_trigger(table_name, column_names)
+                message = f'{"Timeline is imported successfully: "}{table_name}{"."}'
+                DtGUIObj.show_info_messagebox(message)
+
+    import_act.triggered.connect(open_file_dialog)
+    file_menu.addAction(import_act)
+
+    # ================== Exit ==================
+    # Create exit action and add to file_menu
     exit_act = QAction('&Exit', DtGUIObj)
     exit_act.setShortcut('Ctrl+Q')
     exit_act.setStatusTip('Exit application')
     exit_act.triggered.connect(qApp.quit)
+    file_menu.addAction(exit_act)
 
-    if DtGUIObj.database is not None:
-        DtGUIObj.database.connection.close()
+    # Timeline menu
+    timeline_menu = menubar.addMenu('&Timeline')
 
-    return exit_act
-
-@DtGUI.hookimpl
-def merge_action(DtGUIObj):
+    # ================== Merge Timeline ==================
+    # Create merge action and add to timeline_menu
     merge_act = QAction('&Merge Timelines', DtGUIObj)
     merge_act.setShortcut('Ctrl+M')
     merge_act.setStatusTip('Merge timelines')
     merge_act.triggered.connect(DtGUIObj.merge_window_trigger)
+    timeline_menu.addAction(merge_act)
 
-    return merge_act
-
-@DtGUI.hookimpl
-def show_merged_timeline_action(DtGUIObj):
+    # ================== Show Merged Timeline ==================
+    # Create show merged timeline action and add to timeline_menu
     show_merged_timeline_act = QAction('S&how Merged Timeline', DtGUIObj)
     show_merged_timeline_act.setShortcut('Ctrl+H')
     show_merged_timeline_act.setStatusTip('Show merged timeline')
     show_merged_timeline_act.triggered.connect(DtGUIObj.merged_timeline_window_trigger)
-
-    return show_merged_timeline_act
-
-@DtGUI.hookimpl
-def open_directory_dialog(DtGUIObj):
-    directory = QFileDialog.getExistingDirectory(DtGUIObj, "Select Directory")
-
-    # get database name and database directory
-    database_name = os.path.basename(directory)
-    if database_name != '' and directory != '':
-        DtGUIObj.database = QtDatabase_Plugin.QtDatabase(directory)
-
-        # case name == database name
-        DtGUIObj.case_name = database_name
-        DtGUIObj.case_directory = directory
-
-        message = f'{"Case directory is selected: "}{directory}'
-        DtGUIObj.show_info_messagebox(message)
-
-@DtGUI.hookimpl
-def open_file_dialog(DtGUIObj):
-    if DtGUIObj.case_name == '':
-        DtGUIObj.show_info_messagebox("Please select case directory before importing a timeline.")
-
-    else:
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-        file_name, _ = QFileDialog.getOpenFileName(DtGUIObj, "Open file", "", "All Files (*)",
-                                                    options=options)
-        if file_name:
-            print(file_name)
-
-            # insert timeline to database
-            table_name = os.path.basename(file_name)
-            table_name = os.path.splitext(table_name)[0]
-
-            # make sure table name is alphanumeric
-            table_name = re.sub('[\W_]+', '', table_name)
-
-            # insert csv file to database
-            column_names = DtGUIObj.database.insert_csv(table_name, file_name)
-            print("COLUMN NAMES", column_names)
-
-            # save timeline and its column names
-            DtGUIObj.timeline_columns[table_name] = column_names
-
-            # show timeline in an MDI window
-            DtGUIObj.timeline_subwindow_trigger(table_name, column_names)
-            message = f'{"Timeline is imported successfully: "}{table_name}{"."}'
-            DtGUIObj.show_info_messagebox(message)
+    timeline_menu.addAction(show_merged_timeline_act)
 
 @DtGUI.hookimpl
 def timeline_subwindow_trigger(DtGUIObj, table_name, column_names):

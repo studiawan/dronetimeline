@@ -20,62 +20,6 @@ def init_menu(DtGUIObj):
     """
 
 @hookspec(firstresult=True)
-def newcase_action(DtGUIObj):
-    """Create a new case action
-
-    :param DtGUIObj: DtGUI object
-    :return: QAction object
-    """
-
-@hookspec(firstresult=True)
-def import_action(DtGUIObj):
-    """Create an import action
-
-    :param DtGUIObj: DtGUI object
-    :return: QAction object
-    """
-
-@hookspec(firstresult=True)
-def exit_action(DtGUIObj):
-    """Create an exit action
-
-    :param DtGUIObj: DtGUI object
-    :return: QAction object
-    """
-
-@hookspec(firstresult=True)
-def merge_action(DtGUIObj):
-    """Create a merge action
-
-    :param DtGUIObj: DtGUI object
-    :return: QAction object
-    """
-
-@hookspec(firstresult=True)
-def show_merged_timeline_action(DtGUIObj):
-    """Create a show merged timeline action
-
-    :param DtGUIObj: DtGUI object
-    :return: QAction object
-    """
-
-@hookspec(firstresult=True)
-def open_directory_dialog(DtGUIObj):
-    """Open a directory dialog
-
-    :param DtGUIObj: DtGUI object
-    :return: None
-    """
-
-@hookspec(firstresult=True)
-def open_file_dialog(DtGUIObj):
-    """Open a file dialog
-
-    :param DtGUIObj: DtGUI object
-    :return: None
-    """
-
-@hookspec(firstresult=True)
 def timeline_subwindow_trigger(DtGUIObj, table_name, column_names):
     """Create a timeline subwindow
 
